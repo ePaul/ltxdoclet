@@ -1,0 +1,21 @@
+#javadoc-Parameter-Liste
+#
+# nur zum Testen ...
+
+-verbose
+-sourcepath G:\java\sources
+-classpath G:\Java\classes
+-locale de_DE
+-d G:\java\ltxdoclettest
+-author
+-version
+#-splitindex
+#-serialwarn
+#-windowtitle "Test-Dokumentation"
+-overview G:\java\sources\overview.html
+-doclet paul.ltxdoclet.DocletStart
+-docletpath G:\Java\classes;F:\JDG1.3\lib\tools.jar
+
+# jetzt die Packages
+
+paul.zahlen
