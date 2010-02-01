@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project>
+
+
+  <property name="clsdir" location="classes" />
+  <property name="doku.dir" location="doku"/>
+  <property name="texdoku.dir" location="texdoku" />
+  <property name="src.dir" location="src" />
+
+
+  <target name="clean"
+	  description="räumt auf.">
+    <delete dir="${clsdir}" />
+    <delete dir="${doku.dir}" />
+    <delete dir="${texdoku.dir}" />
+  </target>
+
+  
+  <!-- LaTeX-Doclet -->
+
+  <path id="ltxdoclet-path">
+    <pathelement location="${clsdir}" />
+    <pathelement location="/usr/lib/jvm/java-6-openjdk/lib/tools.jar"/>
+  </path>
+
+
+  <target name="ltxdoclet-classes"
+	  description="kompiliert die Klassen für das LaTeX-Doclet.">
+    <mkdir dir="${clsdir}" />
+    <javac destdir="${clsdir}"
+	   encoding="utf8"
+	   source="5"
+	   debug="on"
+	   srcdir="${src.dir}"
+	   >
+      <compilerarg value="-Xlint" />
+      <classpath refid="ltxdoclet-path" />
+      <include name="de/dclj/paul/ltxdoclet/*.java" />
+    </javac>
+  </target>
+
+
+  <target name="ltxdoclet-htmldoku"
+	  description="API-Doku des LaTeX-doclets" >
+    <mkdir dir="${doku.dir}" />
+    <javadoc destdir="${doku.dir}"
+	     version="on"
+	     encoding="utf-8"
+	     docencoding="utf-8"
+	     charset="utf-8"
+	     >
+      <classpath refid="ltxdoclet-path" />
+      <packageset dir="${src.dir}"
+		  includes="de/dclj/paul/ltxdoclet" />
+      <link href="http://java.sun.com/javase/6/docs/api/" />
+      <link href="http://java.sun.com/javase/6/docs/jdk/api/javadoc/doclet/" />
+<!--      <link href="http://java.sun.com/javase/6/docs/jdk/api/javadoc/taglet/" /> -->
+    </javadoc>
+  </target>
+
+  <target name="ltxdoclet-latexdoku"
+	  description="API-Doku (in LaTeX) des LaTeX-doclets"
+	  depends="ltxdoclet-classes"
+	  >
+<!--    <mkdir dir="${texdoku.dir}" /> -->
+    <javadoc destdir="${texdoku.dir}"
+	     version="on"
+	     encoding="utf-8"
+	     >
+      <classpath refid="ltxdoclet-path" />
+      <packageset dir="${src.dir}"
+		  includes="de/dclj/paul/ltxdoclet" />
+      <doclet name="de.dclj.paul.ltxdoclet.DocletStart"
+	      path="${clsdir}">
+      </doclet>
+<!--      <link href="http://java.sun.com/javase/6/docs/api/" />
+      <link href="http://java.sun.com/javase/6/docs/jdk/api/javadoc/doclet/" /> -->
+<!--      <link href="http://java.sun.com/javase/6/docs/jdk/api/javadoc/taglet/" /> -->
+    </javadoc>
+  </target>
+
+  <target name="ltxdoclet-pdfdoku"
+	  description="API-Doku (in PDF) des LaTeX-doclets"
+	  depends="ltxdoclet-latexdoku" >
+    <exec executable="pdflatex"
+	  dir="${texdoku.dir}">
+      <arg value="-halt-on-error" />
+      <arg value="doku-main.tex" />
+    </exec>
+    <exec executable="pdflatex"
+	  dir="${texdoku.dir}">
+      <arg value="-halt-on-error" />
+      <arg value="doku-main.tex" />
+    </exec>
+  </target>
+
+
+
+</project>

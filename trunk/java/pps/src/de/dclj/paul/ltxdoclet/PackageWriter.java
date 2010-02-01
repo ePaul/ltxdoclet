@@ -1,92 +1,115 @@
-package paul.ltxdoclet;
+package de.dclj.paul.ltxdoclet;
 
 import com.sun.javadoc.*;
 import java.io.*;
 
+/**
+ * Schreibt die Dokumentation für ein Package.
+ */
 public class PackageWriter
-	extends LaTeXWriter
+    extends LaTeXWriter
 {
 
-	public PackageWriter(PackageDoc pd)
-		throws IOException
-	{
-		super(new File(configuration.toOutputFileName(pd), "package-doc.tex"));
-		doc = pd;
-	}
+    /**
+     * Erstellt einen neuen PackageWriter.
+     * @param pd das zu dokumentierende Paket.
+     */
+    public PackageWriter(PackageDoc pd)
+	throws IOException
+    {
+	super(new File(configuration.toOutputFileName(pd), "package-doc.tex"));
+	this.doc = pd;
+    }
 	
-	private PackageDoc doc;
+    private PackageDoc doc;
 
-	public void writeDoc()
-	{
-		configuration.root.printNotice("ltxdoclet: package-doc.tex f�r \"" + pd +
-												 "\" wird erstellt ...");
-		ClassDoc[] classes = doc.allClasses();
-		writeClasses(classes);
-		chapter("Package " + doc);
-		section("�bersicht");
-		println(referenceTarget(doc));
-		writeTags(doc.firstSentenceTags());
-		section("Klassen-Liste");
-		println("\\begin{itemize}");
-		for (int i = 0; i < classes.length; i++)
-		{
-			ClassDoc cd = classes[i];
-			print("\\item ");
-			if (cd.isInterface())
-				italic(cd.typeName());
-			else 
-				bold(cd.typeName());
-			println(referenceTo(cd));
-			writeTags(cd.firstSentenceTags());
+    /**
+     * Erstellt die Doku für das Paket.
+     */
+    public void writeDoc()
+    {
+	configuration.root.printNotice("ltxdoclet: package-doc.tex für \"" + doc +
+				       "\" wird erstellt ...");
+	ClassDoc[] classes = doc.allClasses();
+	// parallele Threads für die einzelnen Dateien.
+	writeClasses(classes);
+	chapter("Package " + doc);
+	println(referenceTarget(doc));
+	section("Übersicht");
+	writeInlineTags(doc.firstSentenceTags());
+	section("Klassen-Liste");
+	println("\\begin{description}");
+	for (int i = 0; i < classes.length; i++)
+	    {
+		ClassDoc cd = classes[i];
+		print("\\item[{");
+		if (cd.isInterface()) {
+		    italic(createLink(cd));
 		}
-		println("\\end{itemize}");
-		section("Beschreibung");
-		writeTags(doc.inlineTags());
-		Tag[] tags = doc.tags();
-		for (int i = 0; i < tags.length; i++)
-		{
-			print("[" + tags[i]+ "| kind:" + tags[i].kind()+ "| name: "
-			 + tags[i].name() + "|text: "+ tags[i].text() + "]");
-			newLine(); 
-		}
-		writeClassImports(classes);
-		close();
-	}        // of PackageWriter.writeDoc()
+		else 
+		    print(createLink(cd));
+		println("}]");
+		println(referenceTo(cd));
+		writeInlineTags(cd.firstSentenceTags());
+	    }
+	println("\\end{description}");
+	section("Package-Beschreibung");
+	writeDescription(doc);
+// 	writeTags(doc.inlineTags());
+// 	Tag[] tags = doc.tags();
+// 	for (int i = 0; i < tags.length; i++)
+// 	    {
+// 		print("[" + tags[i]+ "| kind:" + tags[i].kind()+ "| name: "
+// 		      + tags[i].name() + "|text: "+ tags[i].text() + "]");
+// 		newLine(); 
+// 	    }
+	writeClassImports(classes);
+	close();
+    }        // of PackageWriter.writeDoc()
 
-	public void writeClasses(ClassDoc[] classes)
-	{
-		for (int i = 0; i < classes.length; i++)
-		{
-			final ClassDoc cd = classes[i];
-			Thread tr = new Thread(cd + "-Writer")
+    /**
+     * Erstellt die Doku für die Klassen in einzelnen Threads.
+     * @param classes die zu dokumentierenden Klassen.
+     */
+    public void writeClasses(ClassDoc[] classes)
+    {
+	for (int i = 0; i < classes.length; i++)
+	    {
+		final ClassDoc cd = classes[i];
+		Thread tr = new Thread(cd + "-Writer")
+		    {
+			public void run()
+			{
+			    try 
 				{
-					public void run()
-					{
-						try 
-						{
-							new ClassWriter(cd).writeDoc();
-						}
-						catch(IOException io)
-						{
-							configuration.root.printError("Ausgabe f�r " + cd + " konnte nicht " +
-																	"geschrieben werden.");
-						}
-						configuration.threads.remove(Thread.currentThread());
-					}
-				};       // of Thread
-			configuration.threads.add(tr);
-			tr.start();
-		}        // of for
-	}
+				    new ClassWriter(cd).writeDoc();
+				}
+			    catch(IOException io)
+				{
+				    io.printStackTrace();
+				    configuration.wasError = true;
+				    configuration.root.printError("Ausgabe für " + cd + " konnte nicht " +
+								  "geschrieben werden.");
+				}
+			    configuration.threads.remove(Thread.currentThread());
+			}
+		    };       // of Thread
+		configuration.threads.add(tr);
+		tr.start();
+	    }        // of for
+    }
 
-
-	public void writeClassImports(ClassDoc[] classes)
-	{
-		String pkgDir = configuration.toInputFilename() + "/";
-		for (int i = 0; i< classes.length; i++)
-		{
-			println("\\input{" + pkgDir + classes[i] + "}");
-		}
-	}
+    /**
+     * Erstellt die Input-Anweisungen, um die parallel erstellten Klassendokus in die
+     * Package-Doku einzubinden.
+     */
+    public void writeClassImports(ClassDoc[] classes)
+    {
+	String pkgDir = configuration.toInputFileName(doc) + "/";
+	for (int i = 0; i< classes.length; i++)
+	    {
+		println("\\input{" + pkgDir + classes[i].name() + "}");
+	    }
+    }
 
 }
