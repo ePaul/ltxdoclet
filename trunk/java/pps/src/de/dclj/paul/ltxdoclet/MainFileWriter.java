@@ -171,7 +171,9 @@ public class MainFileWriter
 				    configuration.root.printError("Ausgabe für " + pd + " konnte " +
 								  "nicht geschrieben werden!");
 				}
-			    configuration.threads.remove(Thread.currentThread());
+			    finally {
+				configuration.threads.remove(this);
+			    }
 			}        // of run()
 		    };
 		configuration.threads.add(thread);

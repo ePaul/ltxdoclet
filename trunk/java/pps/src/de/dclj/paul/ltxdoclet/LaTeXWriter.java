@@ -399,17 +399,17 @@ public class LaTeXWriter
 	    {
 		if (md.isIncluded())
 		    {
-			println(createLink(st.label(), md));
+			print(createLink(st.label(), md));
 		    }
 		else
 		    {
 			if (st.label().equals(""))
 			    {
-				println(asLaTeXString(md) + " [" + referenceTo(md)+ "]");
+				print(asLaTeXString(md) + " [" + referenceTo(md)+ "]");
 			    }
 			else 
 			    {
-				println(st.label() + " [nicht hier] ");
+				print(st.label() + " [nicht hier] ");
 			    }
 		    }
 		return;
@@ -419,17 +419,17 @@ public class LaTeXWriter
 	    {
 		if (cd.isIncluded())
 		    {
-			println(createLink(st.label(), cd));
+			print(createLink(st.label(), cd));
 		    }
 		else 
 		    {
 			if (st.label().equals(""))
 			    {
-				println(asLaTeXString(cd) + " [" + referenceTo(cd)+ "]");
+				print(asLaTeXString(cd) + " [" + referenceTo(cd)+ "]");
 			    }
 			else 
 			    {
-				println(st.label() + "[ nicht hier ]");
+				print(st.label() + "[ nicht hier ]");
 			    }
 		    }
 		return;
@@ -452,6 +452,10 @@ public class LaTeXWriter
 		    ltxwrite(t.text());
 		else if(t.name().equals("@LaTeX"))  // LaTeX-Quelltext direkt verwenden
 		    print(t.text());
+		else if (t.name().equalsIgnoreCase("@code")) {
+		    // TODO: Code-Formatierung?
+		    print("\\verb!" + t.text() + "!");
+		}
 		else if(t instanceof SeeTag)        // Inline-See-Tag (@link)
 		    {
 			SeeTag st = (SeeTag)t;

@@ -20,6 +20,7 @@ public class ClassWriter
     }
 
     public void writeDoc() {
+	try {
 	configuration.root.printNotice("ltxdoclet: Klassen-Doku für \"" + doc +
 				       "\" wird erstellt ...");
 	println("   % Api-Dokumentation für Klasse " + doc + " (noch nicht fertig). ");
@@ -57,7 +58,12 @@ public class ClassWriter
 	writeMemberList(konstr, "Konstruktoren");
 	writeMemberList(meth, "Methoden");
 
-	close();
+	}
+	finally {
+	    configuration.root.printNotice("ltxdoclet: ... Klassen-Doku für \"" + doc +
+				       "\" beendet.");	    
+	    close();
+	}
     }
 
 
@@ -75,12 +81,27 @@ public class ClassWriter
     public <X extends MemberDoc> void writeMemberDoc(X d) {
 	println("\\item[" + d.name() + "]"); 
 	println(referenceTarget(d));
-	print("~"); // damit newPAragraph() unten auch wirklich eine neue Zeile anfängt.
+	print("~ "); // damit newParagraph() unten auch wirklich eine neue Zeile anfängt.
 	// TODO: Signatur
 	writeDescription(d);
-	newParagraph();
 	if (d.isField()) {
 	    writeDeclaration((FieldDoc) d);
+	}
+	if (configuration.includeSource) {
+	    println("\\begin{verbatim}");
+	    try{
+	    configuration.pp.printSource(d, this);
+	    }
+// 	    catch(RuntimeException ex) {
+// 		configuration.root.printError("bei printSource("
+// 					      + d + "):");
+// 		configuration.wasError = true;
+// 		ex.printStackTrace();
+// 	    }
+	    finally {
+		println("\\end{verbatim}");
+		newParagraph();
+	    }
 	}
     }
 

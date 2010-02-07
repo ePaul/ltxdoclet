@@ -91,11 +91,14 @@ public class PackageWriter
 				    configuration.root.printError("Ausgabe für " + cd + " konnte nicht " +
 								  "geschrieben werden.");
 				}
-			    configuration.threads.remove(Thread.currentThread());
+			    finally {
+				configuration.threads.remove(this);
+			    }
 			}
 		    };       // of Thread
-		configuration.threads.add(tr);
-		tr.start();
+		// configuration.threads.add(tr);
+		//  tr.start();
+		tr.run();
 	    }        // of for
     }
 

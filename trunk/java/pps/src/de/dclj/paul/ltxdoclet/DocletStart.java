@@ -24,8 +24,11 @@ public class DocletStart
 	try
 	    {
 		configuration().setOptions(root);
-		DocletStart s = new DocletStart();
+		// DocletStart s = new DocletStart();
 		//		configuration().root.printNotice("Lade MainFileWriter ...");
+		if (configuration().includeSource) {
+		    configuration().startCompiler();
+		}
 		new MainFileWriter().writeDoku();
 		configuration().root.printNotice("Fertig.");
 		return !configuration().wasError;
