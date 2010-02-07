@@ -17,6 +17,8 @@ public class DocletStart
 
     /**
      * Diese Methode wird beim Start aufgerufen.
+     * @return {@code true} falls erfolgreich, 
+     *   {@code false} falls es einen Fehler gab.
      */
     public static boolean start(RootDoc root)
     {
@@ -31,6 +33,7 @@ public class DocletStart
 		}
 		new MainFileWriter().writeDoku();
 		configuration().root.printNotice("Fertig.");
+		configuration().root.printNotice("Fehler: " + configuration().wasError);
 		return !configuration().wasError;
 	    }
 	catch(Exception ex)

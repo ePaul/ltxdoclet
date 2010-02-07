@@ -1,6 +1,13 @@
 package de.dclj.paul.ltxdoclet;
 
 import java.util.*;
+import java.io.Flushable;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import javax.lang.model.element.Element;
+
+import com.sun.source.tree.Tree.Kind;
+
 
 
 /**
@@ -95,6 +102,7 @@ public class SourceFormatter
      * begonnenen Zeilen erhalten eine Einrückung dieser Länge.
      */
     public void pushIndent() {
+	currentLine.append("\\noprint{indent="+currentLineLength+"}");
 	this.indentStack.push(currentLineLength);
     }
 
@@ -106,7 +114,9 @@ public class SourceFormatter
      * mehr ist als die aktuelle Einrückung.
      */
     public void addIndent() {
-	this.indentStack.push(this.indentStack.peek() + 4);
+	int newIndent = this.indentStack.peek() + 4;
+	currentLine.append("\\noprint{indent=" +newIndent+"}");
+	this.indentStack.push(newIndent);
     }
 
     /**
@@ -118,6 +128,7 @@ public class SourceFormatter
      */
     public void popIndent() {
 	this.indentStack.pop();
+	currentLine.append("\\noprint{indent="+this.indentStack.peek()+"}");
     }
 
 
@@ -129,7 +140,7 @@ public class SourceFormatter
 	if (hasIndent) return;
 	int count = indentStack.peek();
 	for (int i = 0; i < count; i++)
-	    currentLine.append(' ');
+	    currentLine.append('~');
 	currentLineLength = count;
 	hasIndent = true;
     }
@@ -139,6 +150,9 @@ public class SourceFormatter
      * gleich seiner Länge ist).
      */
     public void print(String text) {
+	// bei leerem String müssen wir keine Einrückung erzeugen.
+	if (text.length() == 0)
+	    return;
 	int index = text.indexOf("\n");
 	if(index < 0) {
 	    // ohne Zeilenumbruch
@@ -160,10 +174,17 @@ public class SourceFormatter
 	finishLine();
     }
 
+    /**
+     * gibt die String-Darstellung des Objektes als puren Text aus.
+     */
     public void print(Object o) {
 	print(o.toString());
     }
 
+    /**
+     * gibt die String-Darstellung des Objektes als puren Text aus
+     * und beendet danach die Zeile.
+     */
     public void println(Object o) {
 	println(o.toString());
     }
@@ -174,5 +195,176 @@ public class SourceFormatter
     public void println() {
 	finishLine();
     }
+
+    /**
+     * Druckt ein Schlüsselwort.
+     */
+    public void printKeyword(String keyword) {
+	appendInLine("\\markKeyword{" + keyword + "}",
+		     keyword.length());
+    }
+
+
+    /**
+     * druckt einen Identifier (dabei werden {@code _} escapet.)
+     */
+    public void printId(CharSequence name) {
+	indent();
+	int len = name.length();
+	for(int i = 0; i < len; i++) {
+	    char c = name.charAt(i);
+	    if (c == '_') {
+		this.currentLine.append("\\_");
+	    }
+	    else {
+		this.currentLine.append(c);
+	    }
+	}
+	this.currentLineLength += len;
+    }
+
+
+    //    private Map<String, 
+
+
+    /**
+     * Druckt ein spezielles Token.
+     */
+    public void printSpecial(String token) {
+	SpecialToken tok = SpecialToken.getToken(token);
+	if (tok == null) {
+	    print(token);
+	}
+	else {
+	    appendInLine(tok.getReplacement(), tok.getLength());
+	}
+    }
+
+    public void printSpecial(Kind token) {
+	SpecialToken tok = SpecialToken.getToken(token);
+	if (tok == null) {
+	    print(token);
+	}
+	else {
+	    appendInLine(tok.getReplacement(), tok.getLength());
+	}
+    }
+
+//     /**
+//      * Druckt ein spezielles Token und beendet dann die Zeile.
+//      */
+//     public void printlnSpecial(String token) {
+// 	printSpecial(token);
+// 	println();
+//     }
+
+
+    /**
+     * Druckt ein Literal für einen Wert.
+     */
+    public void printLiteral(Object value, Kind type) {
+	switch(type) {
+	case INT_LITERAL:
+	case DOUBLE_LITERAL:
+	case BOOLEAN_LITERAL:
+	    appendInLine(value.toString());
+	    return;
+	case LONG_LITERAL:
+	    appendInLine(value.toString() + "L");
+	    return;
+	case FLOAT_LITERAL:
+	    appendInLine(value.toString() + "f");
+	    return;
+	case CHAR_LITERAL: {
+
+	    String javaString = 
+		escapeJavaString(value.toString());
+	    int len = javaString.length() + 2;
+	    String lString = 
+		escapeLaTeXString("'" + javaString + "'");
+	    appendInLine(lString, len);
+	    return;
+	}
+	case STRING_LITERAL: {
+	    String javaString = 
+		escapeJavaString(value.toString());
+	    int len = javaString.length() + 2;
+	    String lString = 
+		escapeLaTeXString('"' + javaString + '"');
+	    appendInLine(lString, len);
+	    return;
+	}
+	case NULL_LITERAL:
+	    appendInLine("null");
+	    return;
+	}
+	throw new IllegalArgumentException("Kein Literal: " + type + " (" + value + ")");
+    }
+
+    private final static char[] verbDelim = "#'+*&-.,:;<>|!/()=[]1234567890".toCharArray();
+
+
+
+    private String escapeLaTeXString(String org) {
+	char delim = 0;
+	for (char c : verbDelim) {
+	    if (org.indexOf(c)< 0) {
+		delim = c;
+		break;
+	    } 
+	}
+	if (delim == 0) {
+	    // kein gemeinsamter Delimiter für den
+	    // ganzen String gefunden => wir halbieren
+	    // den String und versuchen es für die
+	    // Hälften noch einmal. Irgendwann ist der
+	    // String kürzer als unsere Liste der Delimiter,
+	    // dann muss es klappen.
+	    int div = org.length()/2;
+	    return
+		escapeLaTeXString(org.substring(0, div)) +
+		escapeLaTeXString(org.substring(div));
+	}
+	return "\\verb" + delim + org + delim;
+    }
+
+    private String escapeJavaString(String org) {
+	StringBuilder b = new StringBuilder(org);
+	for (int i = 0; i < b.length(); i++) {
+	    char c = b.charAt(i);
+	    String replace;
+	    switch(c) {
+	    case '\n': replace = "\\n"; break;
+	    case '\r': replace = "\\r"; break;
+	    case '\t': replace = "\\t"; break;
+	    case '\f': replace = "\\f"; break;
+	    case '\b': replace = "\\b"; break;
+	    case '\\': replace = "\\\\"; break;
+	    case '\'': replace = "\\'"; break;
+	    case '\"': replace = "\\\""; break;
+	    default:
+		continue;
+	    }
+	    b.replace(i, i+1, replace);
+	    i++;
+	}
+	return b.toString();
+    }
+
+
+    /**
+     * Druckt einen Identifier als Link.
+     * @param text der Text des Links (purer Text).
+     * @param el das Element, zu dem gelinkt wird.
+     */
+    public void printLinkedId(String text, Element el)
+    {
+	// TODO: Links für Klassen/Packages an die richtige Stelle
+	// TODO: Links für nicht enthaltene Elemente nicht setzen.
+	appendInLine("\\hyperref[" + el +"]{", 0);
+	printId(text);
+	appendInLine("}", 0);
+    }
+
 
 }

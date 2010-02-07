@@ -157,7 +157,7 @@ public class LaTeXWriter
      */
     public void ltxwrite(String text)
     {
-	println(asLaTeXString(text));
+	print(asLaTeXString(text));
     }
 	
     /**
@@ -169,6 +169,7 @@ public class LaTeXWriter
     {
 	println("\\chapter" + (num? "" : "*") + "{" + asLaTeXString(name) + "}");
     }
+
 	
     /**
      * Beginnt ein neues Kapitel mit Numerierung.
@@ -187,6 +188,17 @@ public class LaTeXWriter
     {
 	println("\\section{" + asLaTeXString(name) + "}");
     }
+
+    /**
+     * Beginnt einen neuen Abschnitt, der im Inhaltsverzeichnis einen
+     * alternativen Namen hat.
+     */
+    public void section(String name, String shortName)
+    {
+	println("\\section[" + asLaTeXString(shortName) + "]{" +
+		asLaTeXString(name) + "}");
+    }
+
 	
     /**
      * Beginnt einen neuen Unterabschnitt.

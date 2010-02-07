@@ -105,6 +105,13 @@ public class MainFileWriter
 	    }
 	println("\\usepackage{hyperref}");
 	println("\\usepackage{enumerate}");
+	
+	println("\\newenvironment*{sourcecode}{%");
+	println("   \\ttfamily\\obeyspaces\\obeylines%");
+	println("}{}");
+	println("\\newcommand*\\noprint[1]{}");
+	// \providecommand*\clap[1]{\hb@xt@\z@{\hss#1\hss}}
+	println("\\providecommand*\\clap[1]{\\hbox to 0pt{\\hss#1\\hss}}");
 	println();
     }
 
@@ -171,6 +178,10 @@ public class MainFileWriter
 				    configuration.root.printError("Ausgabe für " + pd + " konnte " +
 								  "nicht geschrieben werden!");
 				}
+			    catch(RuntimeException ex) {
+				configuration.wasError = true;
+				throw ex;
+			    }
 			    finally {
 				configuration.threads.remove(this);
 			    }

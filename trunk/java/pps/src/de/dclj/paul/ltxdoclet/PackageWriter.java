@@ -91,6 +91,11 @@ public class PackageWriter
 				    configuration.root.printError("Ausgabe für " + cd + " konnte nicht " +
 								  "geschrieben werden.");
 				}
+			    catch(RuntimeException ex) {
+				configuration.wasError = true;
+				throw ex;
+			    }
+
 			    finally {
 				configuration.threads.remove(this);
 			    }

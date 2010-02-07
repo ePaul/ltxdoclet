@@ -26,15 +26,15 @@ public class ClassWriter
 	println("   % Api-Dokumentation für Klasse " + doc + " (noch nicht fertig). ");
 	
 	if (doc.isInterface()) {
-	    section("Interface " + doc);
+	    section("Interface " + doc, doc.name());
 	} else if (doc.isOrdinaryClass()) {
-	    section("Klasse " + doc);
+	    section("Klasse " + doc, doc.name());
 	} else if (doc.isException()) {
-	    section("Exception " + doc);
+	    section("Exception " + doc, doc.name());
 	} else if (doc.isError()) {
-	    section("Error " + doc);
+	    section("Error " + doc, doc.name());
 	} else if (doc.isEnum()) {
-	    section("Enum " + doc);
+	    section("Enum " + doc, doc.name());
 	}
 	println(referenceTarget(doc));
 
@@ -88,7 +88,6 @@ public class ClassWriter
 	    writeDeclaration((FieldDoc) d);
 	}
 	if (configuration.includeSource) {
-	    println("\\begin{verbatim}");
 	    try{
 	    configuration.pp.printSource(d, this);
 	    }
@@ -99,7 +98,6 @@ public class ClassWriter
 // 		ex.printStackTrace();
 // 	    }
 	    finally {
-		println("\\end{verbatim}");
 		newParagraph();
 	    }
 	}
