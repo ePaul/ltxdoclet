@@ -103,15 +103,22 @@ public class MainFileWriter
 		println("\\usepackage{ngerman}");
 		println();
 	    }
-	println("\\usepackage{hyperref}");
+	println("\\usepackage[pdfborderstyle={/S/U/W 1}]{hyperref}");
 	println("\\usepackage{enumerate}");
-	
+	println();
+	println("\\usepackage[dvipsnames]{color}");
+	//	println("\\definecolor{}
+	println();
 	println("\\newenvironment*{sourcecode}{%");
 	println("   \\ttfamily\\obeyspaces\\obeylines%");
+	println("   \\setlength{\\baselineskip}{0.65\\baselineskip}%");
 	println("}{}");
 	println("\\newcommand*\\noprint[1]{}");
 	// \providecommand*\clap[1]{\hb@xt@\z@{\hss#1\hss}}
 	println("\\providecommand*\\clap[1]{\\hbox to 0pt{\\hss#1\\hss}}");
+	println("\\providecommand*\\markString{\\color{blue}}");
+	println("\\providecommand*\\markNumber{\\color[named]{ForestGreen}}");
+	println("\\providecommand*\\markLiteralKeyword{\\color[named]{Brown}}");
 	println();
     }
 

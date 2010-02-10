@@ -258,22 +258,31 @@ public class SourceFormatter
 // 	println();
 //     }
 
+    private void printAsNumber(String text) {
+	appendInLine("{\\markNumber ", 0);
+	appendInLine(text);
+	appendInLine("}", 0);
+    }
+
 
     /**
      * Druckt ein Literal für einen Wert.
      */
     public void printLiteral(Object value, Kind type) {
 	switch(type) {
+	case BOOLEAN_LITERAL:
+	    String val = value.toString();
+	    appendInLine("{\\markLiteralKeyword " + val + "}", val.length());
+	    return;
 	case INT_LITERAL:
 	case DOUBLE_LITERAL:
-	case BOOLEAN_LITERAL:
-	    appendInLine(value.toString());
+	    printAsNumber(value.toString());
 	    return;
 	case LONG_LITERAL:
-	    appendInLine(value.toString() + "L");
+	    printAsNumber(value.toString() + "L");
 	    return;
 	case FLOAT_LITERAL:
-	    appendInLine(value.toString() + "f");
+	    printAsNumber(value.toString() + "f");
 	    return;
 	case CHAR_LITERAL: {
 
@@ -282,7 +291,7 @@ public class SourceFormatter
 	    int len = javaString.length() + 2;
 	    String lString = 
 		escapeLaTeXString("'" + javaString + "'");
-	    appendInLine(lString, len);
+	    appendInLine("{\\markNumber " + lString + "}", len);
 	    return;
 	}
 	case STRING_LITERAL: {
@@ -291,11 +300,11 @@ public class SourceFormatter
 	    int len = javaString.length() + 2;
 	    String lString = 
 		escapeLaTeXString('"' + javaString + '"');
-	    appendInLine(lString, len);
+	    appendInLine("{\\markString "+lString+"}", len);
 	    return;
 	}
 	case NULL_LITERAL:
-	    appendInLine("null");
+	    appendInLine("{\\markLiteralKeyword null}", 4);
 	    return;
 	}
 	throw new IllegalArgumentException("Kein Literal: " + type + " (" + value + ")");
@@ -361,7 +370,7 @@ public class SourceFormatter
     {
 	// TODO: Links für Klassen/Packages an die richtige Stelle
 	// TODO: Links für nicht enthaltene Elemente nicht setzen.
-	appendInLine("\\hyperref[" + el +"]{", 0);
+	appendInLine("\\hyperlink{" + writer.toRefLabel(el) +"}{", 0);
 	printId(text);
 	appendInLine("}", 0);
     }

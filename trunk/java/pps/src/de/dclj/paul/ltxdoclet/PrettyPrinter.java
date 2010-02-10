@@ -151,7 +151,7 @@ public class PrettyPrinter
 		.printWarning("Keine Methode zu " + doc +" gefunden. "+
 			      "Kandidaten waren: " + methoden);
 	}  // if method
-	if (doc.isField())  {
+	if (doc.isField() || doc.isEnumConstant())  {
 	    List<VariableElement> fields =
 		ElementFilter.fieldsIn(siblings);
 	    for(VariableElement var : fields) {
@@ -275,7 +275,7 @@ public class PrettyPrinter
 	this.scan(var.getModifiers(), target);
 	this.scanType(var.getType(), target);
 	target.print(" ");
-	target.print(var.getName());
+	target.printId(var.getName());
 	ExpressionTree init = var.getInitializer();
 	if (init != null) {
 	    target.print(" = ");

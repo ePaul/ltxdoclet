@@ -25,18 +25,19 @@ public class ClassWriter
 				       "\" wird erstellt ...");
 	println("   % Api-Dokumentation für Klasse " + doc + " (noch nicht fertig). ");
 	
+	String refTarget = referenceTarget(doc);
 	if (doc.isInterface()) {
-	    section("Interface " + doc, doc.name());
+	    section("Interface ", doc, doc.name());
 	} else if (doc.isOrdinaryClass()) {
-	    section("Klasse " + doc, doc.name());
+	    section("Klasse ", doc, doc.name());
 	} else if (doc.isException()) {
-	    section("Exception " + doc, doc.name());
+	    section("Exception ", doc, doc.name());
 	} else if (doc.isError()) {
-	    section("Error " + doc, doc.name());
+	    section("Error ", doc, doc.name());
 	} else if (doc.isEnum()) {
-	    section("Enum " + doc, doc.name());
+	    section("Enum ", doc, doc.name());
 	}
-	println(referenceTarget(doc));
+	//	println(referenceTarget(doc));
 
 
 	Type[] interfaces = doc.interfaceTypes();
@@ -49,11 +50,13 @@ public class ClassWriter
 	ConstructorDoc[] konstr = doc.constructors();
 	MethodDoc[] meth = doc.methods();
 	FieldDoc[] fields = doc.fields();
+	FieldDoc[] consts = doc.enumConstants();
 	
 
 	subsection("Inhaltsverzeichnis");
 	// TODO
 
+	writeMemberList(consts, "Enum-Konstanten");
 	writeMemberList(fields, "Variablen");
 	writeMemberList(konstr, "Konstruktoren");
 	writeMemberList(meth, "Methoden");
@@ -79,14 +82,13 @@ public class ClassWriter
     }
 
     public <X extends MemberDoc> void writeMemberDoc(X d) {
-	println("\\item[" + d.name() + "]"); 
-	println(referenceTarget(d));
+	println("\\item[{" + referenceTarget(d, asLaTeXString(d.name())) + "}]"); 
 	print("~ "); // damit newParagraph() unten auch wirklich eine neue Zeile anfängt.
 	// TODO: Signatur
 	writeDescription(d);
-	if (d.isField()) {
-	    writeDeclaration((FieldDoc) d);
-	}
+// 	if (d.isField()) {
+// 	    writeDeclaration((FieldDoc) d);
+// 	}
 	if (configuration.includeSource) {
 	    try{
 	    configuration.pp.printSource(d, this);

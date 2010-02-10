@@ -4,6 +4,17 @@ import com.sun.tools.doclets.*;
 import com.sun.javadoc.*;
 
 import java.io.*;
+import java.io.PrintWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
+//import javax.print.Doc;
+//import java.lang.reflect.ParameterizedType;
+//import javax.swing.text.html.HTML.Tag;
+import javax.lang.model.element.Element;
+//import javax.lang.model.type.TypeVariable;
+//import javax.lang.model.type.WildcardType;
 
 
 /**
@@ -59,6 +70,7 @@ public class LaTeXWriter
     {
 	{"\\", "\\textbackslash "},
 	{"\"", "{\\textquotedbl}"},
+	{"_", "{\\textunderscore}"},
 	{"¡", "!`"},
 	{"£", "{\\pounds}"},
 	{"§", "{\\S}"},
@@ -187,6 +199,14 @@ public class LaTeXWriter
     public void section(String name)
     {
 	println("\\section{" + asLaTeXString(name) + "}");
+    }
+
+    public void section(String prefix, Doc doc, String shortName)
+    {
+	println("\\section[" + asLaTeXString(shortName) + "]{" + prefix +
+		"\\hypertarget{" + toRefLabel(doc) + "}{"
+		+asLaTeXString(doc.toString()) + "}}");
+	
     }
 
     /**
@@ -329,13 +349,37 @@ public class LaTeXWriter
 	// TODO
 	return doc.toString();
     }
+
+    /**
+     * Erstellt den Label-Namen für das angegebene Programmelement.
+     */
+    public String toRefLabel(Element element) {
+	switch(element.getKind()) {
+	case CLASS:
+	case INTERFACE:
+	case ENUM:
+	case ANNOTATION_TYPE:
+	    return element + "-class";
+	case PACKAGE:
+	    return element + "-package";
+	default:
+	    return element.toString();
+	}
+    }
+
+
+
 	
     /**
      * Erstellt ein LaTeX-Label für das angegebene Programmelement.
      */
     public String referenceTarget(Doc doc)
     {
-	return "\\label{" + toRefLabel(doc) + "}";
+	return referenceTarget(doc, doc.toString());
+    }
+
+    public String referenceTarget(Doc doc, String label) {
+	return "\\hypertarget{" + toRefLabel(doc) + "}{" + label + "}";
     }
 	
     /**
@@ -381,6 +425,11 @@ public class LaTeXWriter
 	return kind;
     }
 
+    public String createLink(String labelText, String target) {
+	return "\\hyperlink{" +target + "}{"+ labelText +"}"; //+ " [\\pageref*{" + targetName +"}]";
+    }
+
+
     /**
      * Erstellt einen Link.
      */
@@ -392,7 +441,7 @@ public class LaTeXWriter
 	//        oder gar keinen Link setzen.  Oder einen Index mit allen
 	//        solchen Klassen am Ende anlegen?
 	String targetName = toRefLabel(target);
-	return "\\hyperref[" +targetName + "]{"+ label +"}"; //+ " [\\pageref*{" + targetName +"}]";
+	return createLink(label, targetName);
     }
 
     /**
