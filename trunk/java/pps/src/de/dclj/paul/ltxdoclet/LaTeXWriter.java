@@ -156,7 +156,8 @@ public class LaTeXWriter
     }
 	
     /**
-     * Wandelt den Namen eines Dokumentations-Elementes in einen LaTeX-String um.
+     * Wandelt den Namen eines Dokumentations-Elementes in einen
+     * LaTeX-String um.
      */
     public String asLaTeXString(Doc d)
     {
@@ -366,6 +367,7 @@ public class LaTeXWriter
 	    return element.toString();
 	}
     }
+
 
 
 

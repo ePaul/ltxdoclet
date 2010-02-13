@@ -8,6 +8,7 @@ import javax.lang.model.element.Element;
 
 import com.sun.source.tree.Tree.Kind;
 
+import com.sun.javadoc.Doc;
 
 
 /**
@@ -231,9 +232,17 @@ public class SourceFormatter
      * Druckt ein spezielles Token.
      */
     public void printSpecial(String token) {
+	if(token.equals(""))
+	    return;
+	if(token.charAt(0) == '\n') {
+	    println();
+	    token = token.substring(1);
+	    if(token.equals(""))
+		return;
+	}
 	SpecialToken tok = SpecialToken.getToken(token);
 	if (tok == null) {
-	    print(token);
+	    appendInLine("\\textbf{" + token + "}", token.length());
 	}
 	else {
 	    appendInLine(tok.getReplacement(), tok.getLength());
@@ -366,7 +375,7 @@ public class SourceFormatter
      * @param text der Text des Links (purer Text).
      * @param el das Element, zu dem gelinkt wird.
      */
-    public void printLinkedId(String text, Element el)
+    public void printLinkedId(String text, Doc el)
     {
 	// TODO: Links für Klassen/Packages an die richtige Stelle
 	// TODO: Links für nicht enthaltene Elemente nicht setzen.

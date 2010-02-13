@@ -38,8 +38,8 @@ public enum SpecialToken {
 	GREATER_THAN         (">"  , Kind.GREATER_THAN        , 2, " \\clap{$>$} "), 
 	LESS_THAN_EQUAL      ("<=" , Kind.LESS_THAN_EQUAL     , 2, " \\clap{$\\leq$} "),
 	GREATER_THAN_EQUAL   (">=" , Kind.GREATER_THAN_EQUAL  , 2, " \\clap{$\\geq$} "),
-	EQUAL_TO             ("==" , Kind.EQUAL_TO            , 2, " \\clap{$\\equiv$} "),
-	NOT_EQUAL_TO         ("!=" , Kind.NOT_EQUAL_TO        , 2, " \\clap{$\\neq$} "),
+	EQUAL_TO             ("==" , Kind.EQUAL_TO            , 3, "\\clapon{$\\equiv$}{   }"),
+	NOT_EQUAL_TO         ("!=" , Kind.NOT_EQUAL_TO        , 3, "\\clapon{$\\neq$}{   }"),
 	AND                  ("&"  , Kind.AND                 , 2, " \\clap{\\&} "), 
 	XOR                  ("^"  , Kind.XOR                 , 2, " \\clap{\\barwedge} "), 
 	OR                   ("|"  , Kind.OR                  , 2, " \\clap{|} "), 
@@ -69,7 +69,7 @@ public enum SpecialToken {
 	LEFT_ANGLE("<", " \\llap{$\\langle$}"),
 	RIGHT_ANGLE(">", "\\rlap{$\\rangle$} "),
 	RIGHT_ANGLE_SPACE("> ", "\\rlap{$\\rangle$}  "),
-	SEMIKOLON(";"),
+	SEMIKOLON(";", 2, "~\\clap{\\textbf{;}} "),
 	KOMMA(","),
 	KOMMA_SPACE(", "),
 // 	BIT_UND("&", 3, " \\& "),
@@ -82,6 +82,7 @@ public enum SpecialToken {
 	 */
 	LEFT_BRACE("{", "\\{"),
 	LEFT_BRACE_SPACE("{ ", "\\{ "),
+	SPACE_LEFT_BRACE(" {", " \\{"),
 	/**
 	 * rechte geschweifte Klammer.
 	 */

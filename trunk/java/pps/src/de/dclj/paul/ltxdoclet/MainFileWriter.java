@@ -97,6 +97,8 @@ public class MainFileWriter
 	println("\\usepackage[" +translateEncoding(configuration.docencoding) +
 		"]{inputenc}%  Kodierung der Eingabedateien");
 	println("\\usepackage[T1]{fontenc}%  Kodierung der Schriften");
+	println("\\usepackage{textcomp}");
+	println("\\usepackage{luximono}% andere Schriftart");
 	if (Locale.getDefault().getLanguage().equals("de"))
 	    {
 		println("  % Neue deutsche Silbentrennung");
@@ -109,16 +111,19 @@ public class MainFileWriter
 	println("\\usepackage[dvipsnames]{color}");
 	//	println("\\definecolor{}
 	println();
+	println("\\makeatletter");
 	println("\\newenvironment*{sourcecode}{%");
-	println("   \\ttfamily\\obeyspaces\\obeylines%");
-	println("   \\setlength{\\baselineskip}{0.65\\baselineskip}%");
-	println("}{}");
+	println("   \\ttfamily\\setlength{\\parindent}{0pt}\\small\\obeyspaces\\obeylines%");
+	println("   \\setlength{\\baselineskip}{0.65\\baselineskip}\\par%");
+	println("}{\\par}");
 	println("\\newcommand*\\noprint[1]{}");
 	// \providecommand*\clap[1]{\hb@xt@\z@{\hss#1\hss}}
 	println("\\providecommand*\\clap[1]{\\hbox to 0pt{\\hss#1\\hss}}");
+	println("\\providecommand*\\clapon[2]{\\setbox\\@tempboxa\\hbox{#2}\\hbox to\\wd\\@tempboxa{\\hss#1\\hss}\\kern-\\wd\\@tempboxa\\unhbox\\@tempboxa}");
 	println("\\providecommand*\\markString{\\color{blue}}");
 	println("\\providecommand*\\markNumber{\\color[named]{ForestGreen}}");
 	println("\\providecommand*\\markLiteralKeyword{\\color[named]{Brown}}");
+	println("\\makeatother");
 	println();
     }
 

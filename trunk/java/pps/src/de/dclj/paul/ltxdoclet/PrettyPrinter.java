@@ -172,6 +172,10 @@ public class PrettyPrinter
 	throw new RuntimeException("unbekannter Doc-Typ: " + doc);
     }
 
+    /**
+     * Untersucht, ob ein Element und das entsprechende
+     * Dokumentationselement zusammenpassen.
+     */
     private boolean gleicheSignatur(ExecutableElement methode,
 				    ExecutableMemberDoc doc)
     {
@@ -190,7 +194,10 @@ public class PrettyPrinter
 	return true;
     }
 				    
-
+    /**
+     * Wandelt einen Typ in einen String um, um Signaturen
+     * vergleichen zu können.
+     */
     private String typeAsString(TypeMirror argT) {
 	if (argT.getKind() == TypeKind.TYPEVAR) {
 	    TypeVariable argTVar = (TypeVariable)argT;
@@ -219,6 +226,100 @@ public class PrettyPrinter
 
 
     /* ******* Hilfsmethoden für die Tree-Visitor-Methoden. ******* */
+
+
+    private void makeLink(String text, Element linkTarget,
+			  SourceFormatter target)
+    {
+	RootDoc root = LaTeXWriter.configuration.root;
+	Doc doc;
+	switch(linkTarget.getKind()) {
+	case PACKAGE: {
+	    PackageElement pEl = (PackageElement)linkTarget;
+	    doc = root.packageNamed(pEl.getQualifiedName().toString());
+	    break;
+	}
+	case CLASS:
+	case INTERFACE:
+	case ENUM:
+	case ANNOTATION_TYPE: {
+	    TypeElement type = (TypeElement)linkTarget;
+	    doc = root.classNamed(type.getQualifiedName().toString());
+	    break;
+	}
+	case CONSTRUCTOR:
+	case METHOD: {
+	    ExecutableElement method = (ExecutableElement)linkTarget;
+	    TypeElement type = (TypeElement)method.getEnclosingElement();
+	    ClassDoc typeDoc = root.classNamed(type.getQualifiedName().toString());
+	    // TODO: richtige Methode/konstruktor raussuchen
+	    doc = null;
+	    break;
+	}
+	case FIELD:
+	case ENUM_CONSTANT: {
+	    VariableElement field = (VariableElement)linkTarget;
+	    TypeElement type = (TypeElement)field.getEnclosingElement();
+	    ClassDoc typeDoc = root.classNamed(type.getQualifiedName().toString());
+	    // TODO: richtiges Feld/Enum-Konstante heraussuchen
+	    doc = null;
+	    break;
+	}
+	case EXCEPTION_PARAMETER:
+	case LOCAL_VARIABLE:
+	case PARAMETER: {
+	    // alle Varianten lokaler Variablen. Hier müssen
+	    // wir eigentlich keinen Link setzen, oder?
+	    // (TODO: vielleicht auch lokale Variablen verlinken)
+	    target.printId(text);
+	    return;
+	}
+	default:
+	    // anderes Element?
+	    target.print("«[" + text + ":" + linkTarget+"]»");
+	    return;
+	}  // switch
+	makeLink(text, doc, linkTarget, target);
+    }
+
+    /**
+     * setzt einen Link auf ein Programmelement.
+     * @param text der Text des Links.
+     * @param doc das Dokumentationselement zum verlinkten Element.
+     *  Falls {@code null}, ist keine Dokumentation dazu vorhanden.
+     * @param linkTarget das Element, auf das gelinkt wird.
+     * @param target hier wird der Text hingeschrieben.
+     */
+    void makeLink(String text, Doc doc, Element linkTarget,
+		   SourceFormatter target) {
+	if (doc == null) {
+	    // dieses Programm-Element hat keine Dokumentation, und wurde
+	    // nicht in der API verwendet.
+	    makeExternalLink(text, linkTarget, doc, target);
+	}
+	else if (!doc.isIncluded()) {
+	    // dieses Element ist nicht in der aktuellen Doku, aber
+	    // wurde irgendwo in der Doku erwähnt.
+	    // => vielleicht eine Liste im Anhang?
+	    makeExternalLink(text, linkTarget, doc, target);
+	} else {
+	    // dieses Element gehört zu den Elementen, die gerade
+	    // dokumentiert werden. => interner Link.
+	    target.printLinkedId(text, doc);
+	}
+    }
+
+
+    /**
+     * setzt einen externen Link zu einem Element, welches nicht
+     * enthalten ist.
+     */
+    private void makeExternalLink(String text, Element linkTarget,
+				  Doc linkedDoc, SourceFormatter target) {
+	// TODO: externen link setzen, falls wir einen haben.
+	target.print(text);
+    }
+
 
 
     /**
@@ -256,7 +357,7 @@ public class PrettyPrinter
 		trees.getTypeMirror(new TreePath(this.getCurrentPath(),
 						 tree));
 	    Element el = types.asElement(t);
-	    target.printLinkedId(tree.toString(), el);
+	    this.makeLink(tree.toString(), el, target);
 	    // TODO: eventl. Link setzen
 	    //	    target.print("{" + tree + "}");
 	}
@@ -275,12 +376,27 @@ public class PrettyPrinter
 	this.scan(var.getModifiers(), target);
 	this.scanType(var.getType(), target);
 	target.print(" ");
+	this.printVariableInitializer(var, target);
+    }
+
+    /**
+     * Druckt eine Variablendeklaration ohne Modifier und Typ
+     * (d.h. nur Namen und eventuell Initializer).
+     *
+     * Dies ist für Variablendeklarationen, die mehrere Variablen
+     * gleichzeitig deklarieren, notwendig (insbesondere bei
+     * for-Schleifen).
+     */
+    public void printVariableInitializer(VariableTree var,
+					 SourceFormatter target)
+    {
 	target.printId(var.getName());
 	ExpressionTree init = var.getInitializer();
 	if (init != null) {
 	    target.print(" = ");
 	    this.scan(init, target);
 	}
+	
     }
 
     /**
@@ -301,6 +417,73 @@ public class PrettyPrinter
 
 
     /**
+     * Druckt die Initialisierungsanweisungen einer For-Schleife.
+     * Das ist entweder eine Variablendeklaration (eventuell mehrere
+     * Variablen gleichen Typs), oder eine Reihe von
+     * StatementExpressions (d.h. die Sorte Expressions, die in
+     * ExpressionStatements vorkommen kann), verpackt in je ein
+     * ExpressionStatement. Wir müssen beim Drucken aufpassen, dass
+     * keine {@code ;}, sondern {@code ,} dazwischen sind.
+     */
+    public void printForInit(List<?extends StatementTree> liste,
+			     SourceFormatter target) 
+    {
+	if(liste.isEmpty()) {
+	    return;
+	}
+	StatementTree first = liste.get(0);
+	switch(first.getKind()) {
+	case VARIABLE: {
+	    VariableTree var = (VariableTree)first;
+	    this.printVariableDecl(var, target);
+	    for(StatementTree stat : liste.subList(1, liste.size())) {
+		var = (VariableTree)stat;
+		target.print(", ");
+		this.printVariableInitializer(var, target);
+	    }
+	    return;
+	}
+	case EXPRESSION_STATEMENT: {
+	    // TODO: nachschauen, ob durch das Überspringen
+	    // der ExpressionStatements der TreePath kaputtgeht.
+	    ExpressionStatementTree exp = (ExpressionStatementTree)first;
+	    this.scan(exp.getExpression(), target);
+	    for(StatementTree stat : liste.subList(1, liste.size())) {
+		exp = (ExpressionStatementTree)stat;
+		target.print(", ");
+		this.scan(exp.getExpression(), target);
+	    }
+	    return;
+	}
+	default:
+	    throw new IllegalArgumentException(first.getClass().getName());
+	}  // switch
+    } // printStatementCommaList
+
+    /**
+     * Druckt den Update-Teil eines For-Statements. Dies ist eine
+     * Liste von StatementExpressions, für uns leider verpackt in je
+     * ein ExpressionStatement.
+     * Wir müssen Kommas dazwischensetzen.
+     */
+    public void printForUpdate(List<?extends ExpressionStatementTree>liste,
+			       SourceFormatter target)
+    {
+	    // TODO: nachschauen, ob durch das Überspringen
+	    // der ExpressionStatements der TreePath kaputtgeht.
+	if (liste.isEmpty()) {
+	    return;
+	}
+	ExpressionStatementTree exp = liste.get(0);
+	this.scan(exp.getExpression(), target);
+	for(ExpressionStatementTree stat : liste.subList(1,liste.size())) {
+	    target.print(", ");
+	    this.scan(stat.getExpression(), target);
+	}
+    }
+
+
+    /**
      * Druckt eine Parameterliste.
      */
     public void printParameterList(List<? extends VariableTree> params,
@@ -317,6 +500,11 @@ public class PrettyPrinter
 	target.popIndent();
     }
 
+
+    /**
+     * Druckt eine Liste von throws-Deklarationen
+     * für eine Methode.
+     */
     public void printThrows(List<? extends ExpressionTree> exceptions,
 			    SourceFormatter target) {
 	target.addIndent();
@@ -436,6 +624,25 @@ public class PrettyPrinter
 	}
     }
 
+    /**
+     * Druckt eine Reihe von Anweisungen eingerückt.
+     */
+    private void printIndented(List<? extends StatementTree> statements,
+			       SourceFormatter target)
+    {
+	switch(statements.size()) {
+	case 0:
+	    return;
+	case 1:
+	    printIndented(statements.get(0), target);
+	    return;
+	default:
+	    target.addIndent();
+	    this.printList(statements, target, "\n", "\n", "");
+	    target.popIndent();
+	}
+    }
+
 
     /* ****************** TreeVisitor-Methoden ***************** */
 
@@ -486,7 +693,10 @@ public class PrettyPrinter
 	return null;
     }
 
-
+    /**
+     * Druckt eine Typdeklaration (Klasse, Interface, etc.)
+     */
+    @Override
     public Void visitClass(ClassTree klasse,
 			   SourceFormatter target)
     {
@@ -501,6 +711,7 @@ public class PrettyPrinter
     /**
      * Druckt ein Assert-Statement.
      */
+    @Override
     public Void visitAssert(AssertTree tree, SourceFormatter target)
     {
 	target.printSpecial("assert ");
@@ -535,6 +746,7 @@ public class PrettyPrinter
     /**
      * Druckt ein Break-Statement.
      */
+    @Override
     public Void visitBreak(BreakTree br, SourceFormatter target)
     {
 	Name label = br.getLabel();
@@ -551,6 +763,7 @@ public class PrettyPrinter
     /**
      * Druckt ein Continue-Statement.
      */
+    @Override
     public Void visitContinue(ContinueTree br, SourceFormatter target)
     {
 	Name label = br.getLabel();
@@ -566,6 +779,7 @@ public class PrettyPrinter
     /**
      * Druckt eine Do-While-Schleife.
      */
+    @Override
     public Void visitDoWhileLoop(DoWhileLoopTree loop,
 				 SourceFormatter target)
     {
@@ -595,6 +809,7 @@ public class PrettyPrinter
     /**
      * Druckt eine for-each-Schleife.
      */
+    @Override
     public Void visitEnhancedForLoop(EnhancedForLoopTree loop,
 				     SourceFormatter target)
     {
@@ -624,6 +839,7 @@ public class PrettyPrinter
     /**
      * Druckt eine for-Schleife.
      */
+    @Override
     public Void visitForLoop(ForLoopTree loop,
 			     SourceFormatter target)
     {
@@ -631,13 +847,25 @@ public class PrettyPrinter
 	target.printSpecial("(");
 	// TODO: verhindern, dass hier zusätzliche ";" mit
 	// reinkommen.
-	this.printList(loop.getInitializer(), target, "", ", ", "");
+// 	System.err.println(loop.getInitializer());
+// 	for (int i = 0,  j = 7; j<i ; i++) {
+// 	    break;
+// 	}
+// 	for("Hallo".toString(), "Welt".charAt(2) ; ; ) {
+// 	    break;
+// 	}
+
+// 	for(StatementTree init: loop.getInitializer()) {
+// 	    System.err.println("initializer: " + init + " (" + init.getClass()+")");
+// 	}
+	this.printForInit(loop.getInitializer(), target);
 	target.printSpecial(";");
 	this.scan(loop.getCondition(), target);
 	target.printSpecial(";");
 	// TODO: verhindern, dass hier zusätzliche ";" mit
 	// reinkommen.
-	this.printList(loop.getUpdate(), target, "", ", ", "");
+	
+	this.printForUpdate(loop.getUpdate(), target);
 	target.printSpecial(")");
 	this.printIndented(loop.getStatement(), target);
 	return null;
@@ -648,12 +876,14 @@ public class PrettyPrinter
     /**
      * Druckt ein if-Statement.
      */
+    @Override
     public Void visitIf(IfTree ifS, SourceFormatter target)
     {
 	target.printSpecial("if");
-	target.printSpecial("(");
-
-	target.printSpecial(")");
+	//	target.printSpecial("(");
+	//	System.out.println("condition: " + ifS.getCondition());
+	this.scan(ifS.getCondition(), target);
+	//	target.printSpecial(")");
 	this.printIndented(ifS.getThenStatement(), target);
 	StatementTree elseTree = ifS.getElseStatement();
 	if (elseTree != null) {
@@ -710,15 +940,19 @@ public class PrettyPrinter
     /**
      * Druckt ein Switch-Statement.
      */
+    @Override
     public Void visitSwitch(SwitchTree st, SourceFormatter target)
     {
 	target.printSpecial("switch");
-	target.printSpecial("(");
+	// target.printSpecial("(");
 	this.scan(st.getExpression(), target);
-	target.printSpecial(")");
+	// target.printSpecial(")");
+	target.print(" ");
 	target.printSpecial("{");
+	target.addIndent();
 	target.println();
 	this.scan(st.getCases(), target);
+	target.popIndent();
 	target.printSpecial("}");
 	return null;
     }
@@ -742,6 +976,7 @@ public class PrettyPrinter
     /**
      * Druckt ein Throw-Statement.
      */
+    @Override
     public Void visitThrow(ThrowTree tree, SourceFormatter target)
     {
 	target.printSpecial("throw ");
@@ -753,6 +988,7 @@ public class PrettyPrinter
     /**
      * Druckt ein Try-Statement.
      */
+    @Override
     public Void visitTry(TryTree tree, SourceFormatter target)
     {
 	target.printSpecial("try ");
@@ -771,13 +1007,14 @@ public class PrettyPrinter
     /**
      * Druckt eine While-Schleife.
      */
-    public Void visitDoWhileLoop(WhileLoopTree loop,
+    @Override
+    public Void visitWhileLoop(WhileLoopTree loop,
 				 SourceFormatter target)
     {
 	target.printSpecial("while");
-	target.printSpecial("(");
+	//	target.printSpecial("(");
 	this.scan(loop.getCondition(), target);
-	target.printSpecial(")");
+	//	target.printSpecial(")");
 	this.printIndented(loop.getStatement(), target);
 	return null;
     }
@@ -791,6 +1028,7 @@ public class PrettyPrinter
     /**
      * Druckt einen Array-Zugriff.
      */
+    @Override
     public Void visitArrayAccess(ArrayAccessTree tree,
 				 SourceFormatter target)
     {
@@ -805,6 +1043,7 @@ public class PrettyPrinter
     /**
      * Druckt eine Zuweisung.
      */
+    @Override
     public Void visitAssignment(AssignmentTree tree,
 				SourceFormatter target)
     {
@@ -818,6 +1057,7 @@ public class PrettyPrinter
     /**
      * Druckt einen binären Ausdruck.
      */
+    @Override
     public Void visitBinary(BinaryTree bin, SourceFormatter target)
     {
 	this.scan(bin.getLeftOperand(), target);
@@ -831,6 +1071,7 @@ public class PrettyPrinter
     /**
      * Druckt einen Rechnung-und-Zuweisungs-Ausdruck.
      */
+    @Override
     public Void visitCompoundAssignment(CompoundAssignmentTree tree,
 					SourceFormatter target)
     {
@@ -841,8 +1082,9 @@ public class PrettyPrinter
     }
 
     /**
-     * Druckt eine bedingten Ausdruck ( a ? b : c ).
+     * Druckt eine bedingten Ausdruck {@code a ? b : c }.
      */
+    @Override
     public Void visitConditionalExpression(ConditionalExpressionTree tree,
 					   SourceFormatter target)
     {
@@ -870,6 +1112,7 @@ public class PrettyPrinter
     /**
      * Druckt einen instanceof-Ausdruck.
      */
+    @Override
     public Void visitInstanceOf(InstanceOfTree tree,
 				SourceFormatter target)
     {
@@ -882,6 +1125,7 @@ public class PrettyPrinter
     /**
      * Druckt ein Literal.
      */
+    @Override
     public Void visitLiteral(LiteralTree literal,
 			     SourceFormatter target)
     {
@@ -893,6 +1137,7 @@ public class PrettyPrinter
     /**
      * Druckt einen Variablen-Zugriffs-Ausdruck.
      */
+    @Override
     public Void visitMemberSelect(MemberSelectTree tree,
 				  SourceFormatter target)
     {
@@ -907,11 +1152,15 @@ public class PrettyPrinter
     /**
      * Druckt einen Methodenaufruf.
      */
+    @Override
     public Void visitMethodInvocation(MethodInvocationTree tree,
 				      SourceFormatter target)
     {
 	// TODO: nachschauen, ob das Ergebnis passt,
 	// oder ob die Typparameter woanders hin müssen.
+	//
+	// Ja, sie müssen eigentlich in den Selector
+	// eingebaut werden. Hmm.
 	ExpressionTree selector = tree.getMethodSelect();
 	if (selector != null) {
 	    //	    target.print("[[");
@@ -926,6 +1175,10 @@ public class PrettyPrinter
 	return null;
     }
 
+    /**
+     * Druckt einen Array-Erstellungs-Ausdruck.
+     */
+    @Override
     public Void visitNewArray(NewArrayTree tree,
 			      SourceFormatter target)
     {
@@ -959,6 +1212,10 @@ public class PrettyPrinter
 	return null;
     }
 
+    /**
+     * Druckt einen Exemplarerstellungsausdruck.
+     */
+    @Override
     public Void visitNewClass(NewClassTree tree,
 			      SourceFormatter target)
     {
@@ -991,6 +1248,7 @@ public class PrettyPrinter
     /**
      * Druckt einen eingeklammerten Ausdruck.
      */
+    @Override
     public Void visitParenthesized(ParenthesizedTree tree,
 				   SourceFormatter target)
     {
@@ -1000,6 +1258,10 @@ public class PrettyPrinter
 	return null;
     }
 
+    /**
+     * Druckt einen Type-Cast-Ausdruck.
+     */
+    @Override
     public Void visitTypeCast(TypeCastTree tree, SourceFormatter target)
     {
 	target.printSpecial("(");
@@ -1014,6 +1276,7 @@ public class PrettyPrinter
     /**
      * Druckt einen unären Ausdruck.
      */
+    @Override
     public Void visitUnary(UnaryTree tree, SourceFormatter target)
     {
 	switch(tree.getKind()) {
@@ -1128,25 +1391,27 @@ public class PrettyPrinter
     /**
      * Druckt einen Zweig eines Switch-Statements.
      */
+    @Override
     public Void visitCase(CaseTree cTree, SourceFormatter target)
     {
 	ExpressionTree exp = cTree.getExpression();
 	if (exp == null) {
-	    target.printSpecial("default:");
+	    target.printSpecial("default: ");
 	}
 	else {
 	    target.printSpecial("case ");
 	    this.scan(exp, target);
-	    target.printSpecial(":");
+	    target.printSpecial(": ");
 	}
+	printIndented(cTree.getStatements(), target);
 	target.println();
-	this.printList(cTree.getStatements(), target, "", "\n", "\n");
 	return null;
     }
 
     /**
      * Druckt einen Catch-Zweig eines Throw-Statements.
      */
+    @Override
     public Void visitCatch(CatchTree cat, SourceFormatter target) {
 	target.printSpecial("catch");
 	target.printSpecial("(");
@@ -1168,16 +1433,6 @@ public class PrettyPrinter
 	printBounds(param.getBounds(), target);
 	return null;
     }
-
-
-
-
-
-
-    /* ********* noch unsortiert ****** */
-
-
-
 
 
 }
