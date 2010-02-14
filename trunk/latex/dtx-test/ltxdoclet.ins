@@ -1,0 +1,61 @@
+%%
+%% (C) 2002-2008 Paul Ebermann  - Installationsdatei zu ltxdoclet.dtx
+%%
+%% Der vollständige Urheberrechtshinweis befindet sich
+%% am Begin von ltxdoclet.dtx.
+%%
+%% Ich gebe keine Garantie irgendeiner Art.
+%%
+
+\input docstrip.tex
+\usedir{tex/latex/paul}
+
+\Msg{**********************************************************}
+\Msg{* Ich werde Dateien in \showdirectory{tex/latex/paul}     }
+\Msg{* installieren. Bitte stellen Sie sicher,                 }
+\Msg{* dass dieses Verzeichnis vorhanden ist.                  }
+\Msg{* }
+
+%% der folgende Text wird in jeder generierten
+%% Datei am Anfang eingefügt.
+\preamble
+
+ ,--------------------------------------------------.
+ |  Das ist eine generierte Datei.                  |
+ |                                                  |
+ | (c) 2008 Paul Ebermann.                          |
+ '--------------------------------------------------'
+\endpreamble
+
+
+\generate{\file{ltxdoclet.sty}{\from{ltxdoclet.dtx}{package}}}
+%\generate{\file{ltxdoclet.cls}{\from{ltxdoclet.dtx}{class}}}
+
+\Msg{#######################}
+\Msg{#                                        }
+\Msg{# Um die Installation zu beenden,        }
+\Msg{# müssen Sie die folgenden Dateien       }
+\Msg{# in Ihrem TeX-Suchbaum unterbringen:    }
+\Msg{#                                        }
+\Msg{#     ltxdoclet.sty                      }
+%\Msg{#     ltxdoclet.cls                      }
+\Msg{#                                        }
+\Msg{# Um eine Dokumentation zu erzeugen,     }
+\Msg{# benutzen Sie                           }
+\Msg{#                                        }
+\Msg{#     latex ltxdoclet.dtx                }
+\Msg{#                                        }
+\Msg{# Viel Spaß                              }
+\Msg{#              Paul Ebermann             }
+\Msg{#                                        }
+\Msg{#######################}
+
+\endbatchfile
+
+
+%%% Folgendes ist nur für meinen Editor.
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

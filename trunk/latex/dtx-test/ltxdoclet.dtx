@@ -31,10 +31,11 @@
 %
 % \iffalse
 %<*driver>
-\documentclass{scrartcl}
+\documentclass[dvipsnames]{scrartcl}
 %
 % Esperantajn tekstojn oni prefere entajpu per unikodaj literoj.
 \RequirePackage[utf8x]{inputenc}
+\PrerenderUnicode{}
 \RequirePackage[ngerman]{babel}
 \addto{\extrasesperanto}{%
   \renewcommand*{\generalname}{\^Generale}%
@@ -50,10 +51,12 @@
   \IndexMin=5\baselineskip
 }
 
+\usepackage[dvipsnames]{xcolor}
 \usepackage{ltxdoclet}
-
+%! \usepackage[scaled]{luximono}
 \usepackage[bookmarks=false]{hyperref}
 \usepackage[countalllines, withmarginpar]{gmdoc}
+\usepackage[inline, visible]{gmdoc-enhance}
 \let\pack\textrm%
 \renewcommand*{\EOFMark}{}
 
@@ -83,19 +86,146 @@
 %
 % \tableofcontents
 %
-% \section{Uzanta dokumentaĵo}
+% \section{Nutzerdoku}
 %
 %
 % \StopEventually{\PrintChanges\PrintIndex}
 %
-% \section{Implementado}
+% \section{Implementation}
 %
 %<*package>
 %
 %
-% \subsection{Opcioj}
+% \subsection{Package-Optionen}
 %
-% Jam fino :-)
+%  Bisher gibt es keine.
+%
+% \subsection{Geladene Pakete}
+%
+% Wir laden das \pack{color}-Paket, um Farben verwenden zu können.
+%!\RequirePackage[dvipsnames]{color}
+
+%
+% \subsection{Diverse Makros}
+%
+% \begin{macro}{\noprint}
+%   '\noprint' ist ein Klon des '\@gobble'-Makros aus dem \LaTeX-Kernel.
+%   Es dient dazu, im generierten \LaTeX-Quelltext Debug-Informationen auszugeben,
+%   ohne dass sie in der Ausgabe auftauchen.
+\newcommand*\noprint[1]{}%
+% \end{macro}
+%
+% \subsection{Text ausrichten}
+%
+% \begin{macro}{\clap}
+%   Dieses Makro habe ich aus \pack{mathtools} geklaut. Es ist ein Verwandter 
+%   der bekannten '\llap' und '\rlap'. Es setzt eine horizontale Box mit dem
+%   Argument als Inhalt zentriert an der aktuellen Stelle, ohne dass sie Platz
+%   verwendet.
+\newcommand*\clap[1]{%
+  \hb@xt@\z@{\hss#1\hss}
+}
+% \end{macro}
+%
+% \begin{macro}{\clapon}\marg{text1}\marg{text2}
+%   Verwandt mit '\clap', zentriert dieses Makro \meta{text1} nicht
+%   mit Breite $0$, sondern über \meta{text2}. (D.h. beides wird gesetzt,
+%   relativ zueinander zentriert, und das Ergebnis hat die Breite von
+%   \meta{text2}.) 
+\providecommand*{\clapon}[2]{%
+  \setbox\@tempboxa\hbox{#2}% Wir merken uns \meta{text2} in einer Box.
+  \hbox to\wd\@tempboxa{% Dann öffnen wir eine Box mit der
+% Breite von \meta{text2}, \dots
+    \hss#1\hss}% \dots und setzen darin \meta{text1}, mit beidseitig
+% flexiblem Platz (d.h. zentriert).
+  \kern-\wd\@tempboxa% Dann gehen wir wieder zurück
+% zum Anfang (mit einem negativen Abstand).
+  \unhbox\@tempboxa}% und hier setzen wir \meta{text1},
+% außerhalb seiner Box. (Es ist zu überlegen, ob statt '\unhbox'
+% eher '\box' sinnvoller wäre, denn nun kann \meta{text2} noch
+% vom Zeilenpasser bearbeitet werden, und damit die Zentrierung
+% kaputtgehen.)
+% \end{macro}
+%
+% \subsection{Literale hervorheben}
+%
+
+% \begin{macro}{\markString}
+% \begin{macro}{\markNumber}
+% \begin{macro}{\markLiteralKeyword}
+%   Diese drei Makros sind Deklarationen, die
+%   den Bereich bis zum nächsten Gruppenende als
+%   Literal markieren. Sie werden von unserem
+%   Quelltext-Drucker in der Form '{\markNumber 20}' verwendet: {\markNumber '20'}
+\providecommand*{\markString}{%
+  \color{blue}}% Strings markieren wir blau.
+\providecommand*{\markNumber}{%
+  \color[named]{ForestGreen}}% Zahlen sind grün.
+\providecommand*{\markLiteralKeyword}{%
+  \color[named]{Brown}}% Und Schlüsselwortliterale wie {\markLiteralKeyword 'null'},
+% {\markLiteralKeyword 'true'}, {\markLiteralKeyword 'false'} sind braun.
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+%
+% \subsection{sourcecode-Umgebung}
+%
+% \begin{environment}{sourcecode}
+% Diese Umgebung verwenden wir, um Quelltext zu setzen.
+
+%\begin{minipage}{.45\textwidth}
+%\begin{sourcecode}
+%\textbf{private} DocletStart()
+%\{
+%~~~~super()~\clap{\textbf{;}} 
+%\}
+%\end{sourcecode}
+%\end{minipage}
+%\begin{minipage}{.45\textwidth}
+%\begin{verbatim}
+%\begin{sourcecode}
+%\textbf{private} DocletStart()
+%\{
+%~~~~super()~\clap{\textbf{;}} 
+%\}
+%\end{sourcecode}
+%\end{verbatim}
+%\end{minipage}
+%
+
+% Der Inhalt dieser Umgebung wird von unserem \LaTeX-doclet
+% automatisch generiert, indem ein Syntaxbaum des Compilers
+% abgelaufen wird.
+%
+% Hier die Definition:
+\newenvironment*{sourcecode}%
+{% Einstellungen am Anfang:
+  \par% zuerst beenden wir den Absatz, falls da einer ist.
+  \setlength{\parindent}{0pt}%  Wir wollen keine Paragraphen-Einrückung hier.
+  \ttfamily\small% Alles soll in einer \texttt{nichtproportionalen} Schrift und
+  %  etwas kleiner sein.
+  %
+  \obeyspaces\obeylines% Leerzeichen und Zeilenumbrüche
+  % sollen bitte behalten werden. (Alternativ könnten wir
+  % unseren Quelltext-Formatierer immer '\par' ausgeben lassen,
+  % aber so ist es einfacher.)
+  %
+  \raggedright% das bringt etwas weniger \emph{Overfull hbox}-Meldungen, und
+  % erlaubt einen gewissen Zeilenumbruch im Quelltext. Wir müssen uns da aber
+  % noch etwas besseres ausdenken.
+  %
+}{% Am Ende der Umgebung muss nicht so viel gemacht werden:
+  \par% wir beenden nur noch den Absatz.
+}%
+%
+% \end{environment}
+
+%
+% \subsection{Ende}
+% 
+%
+
 \endinput
 %</package>
 % (Jes, vere fino.)
