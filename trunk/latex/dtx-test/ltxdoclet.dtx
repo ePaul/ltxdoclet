@@ -34,8 +34,8 @@
 \documentclass[dvipsnames]{scrartcl}
 %
 % Esperantajn tekstojn oni prefere entajpu per unikodaj literoj.
-\RequirePackage[utf8x]{inputenc}
-\PrerenderUnicode{}
+\RequirePackage[utf8]{inputenc}
+%!\PrerenderUnicode{}
 \RequirePackage[ngerman]{babel}
 \addto{\extrasesperanto}{%
   \renewcommand*{\generalname}{\^Generale}%
@@ -66,6 +66,7 @@
    % bezonas ĝin por ^^B, ^^M ktp.
    \catcode`\^=7%
    \MakeShortVerb\'
+   \errorcontextlines=30%
    \DocInput{ltxdoclet.dtx}
 \end{document}
 %</driver>
@@ -88,6 +89,7 @@
 %
 % \section{Nutzerdoku}
 %
+%  \hyperlink{test-target}{Springe zum Ziel}
 %
 % \StopEventually{\PrintChanges\PrintIndex}
 %
@@ -169,6 +171,7 @@
 % \end{macro}
 %
 %
+%
 % \subsection{sourcecode-Umgebung}
 %
 % \begin{environment}{sourcecode}
@@ -176,24 +179,55 @@
 
 %\begin{minipage}{.45\textwidth}
 %\begin{sourcecode}
-%\textbf{private} DocletStart()
-%\{
-%~~~~super()~\clap{\textbf{;}} 
-%\}
+%  \ltdIndent.\textbf{private} DocletStart()\ltdSetIndent{4}\ltdSetIndent{0}
+%  \ltdIndent.\{\ltdSetIndent{4}
+%  \ltdIndent    .super()~\clap{\textbf{;}} 
+%  \ltdSetIndent{0}\ltdIndent.\}
 %\end{sourcecode}
 %\end{minipage}
 %\begin{minipage}{.45\textwidth}
 %\begin{verbatim}
 %\begin{sourcecode}
-%\textbf{private} DocletStart()
-%\{
-%~~~~super()~\clap{\textbf{;}} 
-%\}
+%  \ltdIndent.\textbf{private} DocletStart()\ltdSetIndent{4}\ltdSetIndent{0}
+%  \ltdIndent.\{\ltdSetIndent{4}
+%  \ltdIndent    .super()~\clap{\textbf{;}} 
+%  \ltdSetIndent{0}\ltdIndent.\}
 %\end{sourcecode}
 %\end{verbatim}
 %\end{minipage}
 %
-
+% Und ein längeres Beispiel:
+%
+% \begin{sourcecode}
+% \ltdIndent.\textbf{public} void writeDoku()\ltdSetIndent{4}\ltdSetIndent{0}
+% \ltdIndent.\{\ltdSetIndent{4}
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.MainFileWriter.writePackages()}{writePackages}()~\clap{\textbf{;}} 
+% \ltdIndent    .configuration\textbf{.}root\textbf{.}printNotice({\markString \verb#"ltxdoclet: doku-main.tex wird erstellt ..."#})~\clap{\textbf{;}} 
+% \ltdIndent    .println({\markString \verb#"   % Damit beim Compilieren nicht bei jedem Fehler angehalten wird"#})~\clap{\textbf{;}} 
+% \ltdIndent    .println({\markString \verb#"\\scrollmode"#})~\clap{\textbf{;}} 
+% \ltdIndent    .println()~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.MainFileWriter.writePreamble()}{writePreamble}()~\clap{\textbf{;}} 
+% \ltdIndent    .println({\markString \verb#"\\begin{document}"#})~\clap{\textbf{;}} 
+% \ltdIndent    .println()~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.LaTeXWriter.chapter(java.lang.String,boolean)}{chapter}({\markString \verb#"Übersicht"#}, {\markLiteralKeyword false})~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.LaTeXWriter.ltxwrite(java.lang.String)}{ltxwrite}(configuration\textbf{.}doctitle \clap{$+$} {\markString \verb#" besteht aus den folgenden Packages. Eine"#})~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.LaTeXWriter.ltxwrite(java.lang.String)}{ltxwrite}({\markString \verb#" kurze Beschreibung folgt danach."#})~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.LaTeXWriter.section(java.lang.String)}{section}({\markString \verb#"Package-Liste"#})~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.MainFileWriter.writePackageList()}{writePackageList}()~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.LaTeXWriter.section(java.lang.String)}{section}({\markString \verb#"Beschreibung"#})~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.MainFileWriter.writeOverview()}{writeOverview}()~\clap{\textbf{;}} 
+% \ltdIndent    .println({\markString \verb#"\\setcounter{chapter}{0}"#})~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.MainFileWriter.writePackageImports()}{writePackageImports}()~\clap{\textbf{;}} 
+% \ltdIndent    .println({\markString \verb#"\\appendix"#})~\clap{\textbf{;}} 
+% \ltdIndent    .println({\markString \verb#"\\end{document}"#})~\clap{\textbf{;}} 
+% \ltdIndent    .close()~\clap{\textbf{;}} 
+% \ltdIndent    .configuration\textbf{.}root\textbf{.}printNotice({\markString \verb#"ltxdoclet: ... doku-main.tex fertig."#})~\clap{\textbf{;}} 
+% \ltdIndent    .configuration\textbf{.}root\textbf{.}printNotice({\markString \verb#"ltxdoclet: warte auf Beendigung der anderen Dateien ..."#})~\clap{\textbf{;}} 
+% \ltdIndent    .\hyperlink{de.dclj.paul.ltxdoclet.MainFileWriter.waitForAllThreads()}{waitForAllThreads}()~\clap{\textbf{;}} 
+% \ltdIndent    .configuration\textbf{.}root\textbf{.}printNotice({\markString \verb#"ltxdoclet: Fertig!"#})~\clap{\textbf{;}} 
+% \ltdSetIndent{0}\ltdIndent.\}
+% \end{sourcecode}
+% 
 % Der Inhalt dieser Umgebung wird von unserem \LaTeX-doclet
 % automatisch generiert, indem ein Syntaxbaum des Compilers
 % abgelaufen wird.
@@ -203,32 +237,171 @@
 {% Einstellungen am Anfang:
   \par% zuerst beenden wir den Absatz, falls da einer ist.
   \setlength{\parindent}{0pt}%  Wir wollen keine Paragraphen-Einrückung hier.
-  \ttfamily\small% Alles soll in einer \texttt{nichtproportionalen} Schrift und
-  %  etwas kleiner sein.
+  \ttfamily\small% Alles soll in einer \texttt{nichtproportionalen}
+  %  Schrift und etwas kleiner sein.
+  % 
+  \catcode`\ =\active% Leerzeichen wollen wir aktiv machen, und ...
+  \expandafter\let\ltd@activeSpace=\ltd@DiscrSpace% ('\let =\ltd@DiscrSpace')
+  % 
+  \obeylines% Zeilenumbrüche sollen bitte behalten werden.
+  % (Alternativ könnten wir unseren Quelltext-Formatierer
+  % immer '\par' ausgeben lassen, aber so ist es einfacher.)
   %
-  \obeyspaces\obeylines% Leerzeichen und Zeilenumbrüche
-  % sollen bitte behalten werden. (Alternativ könnten wir
-  % unseren Quelltext-Formatierer immer '\par' ausgeben lassen,
-  % aber so ist es einfacher.)
-  %
-  \raggedright% das bringt etwas weniger \emph{Overfull hbox}-Meldungen, und
-  % erlaubt einen gewissen Zeilenumbruch im Quelltext. Wir müssen uns da aber
-  % noch etwas besseres ausdenken.
+  \raggedright% das bringt etwas weniger \emph{Overfull hbox}-Meldungen,
+  %  und erlaubt einen gewissen Zeilenumbruch im Quelltext. Wir müssen
+  %  uns da aber noch etwas besseres ausdenken (siehe oben der Versuch
+  % mit den aktiven Leerzeichen.
   %
 }{% Am Ende der Umgebung muss nicht so viel gemacht werden:
-  \par% wir beenden nur noch den Absatz.
+  \par% wir beenden nur noch den Absatz (und alle Definitionen
+  % von oben werden rückgängig gemahcht, weil die Gruppe endet).
 }%
 %
 % \end{environment}
+%
+% In unseren 'sourcecode'-Umgebungen soll ' ' aktiv sein und
+% wie '\ltdBreak{~}' funktionieren.
+%
+\catcode`\ =\active% Wir lassen \verb*' ' aktiv sein, und \dots
+\def\ltd@activeSpace{ }% merken uns in diesem Makro ein aktives Leerzeichen.
+\catcode`\ =10% Hier schalten wir wieder zurück.
+%
+%
+%
+% \subsection{Einrückungen}
+%
+% \begin{macro}{\ltdSetIndent}\marg{anzahl}
+%   Setzt die Einrückung für folgende
+%   Zeilen auf den angegebenen Wert
+%   (in Zeichenbreiten).
+\newcounter{ltxdoclet@indent}
+\providecommand*{\ltdSetIndent}[1]{%
+  \setcounter{ltxdoclet@indent}{#1}%
+}%
+% \end{macro}
+%
+%
+\newlength{\ltxdoclet@indentlen}
+%
+% \begin{macro}{\ltdIndent}\meta{space}'.'
+%
+%   Setzt soviel Platz wie nach aktueller Einrückungslänge
+%   notwendig.
+\newcommand*{\ltdIndent}{}%
+\def\ltdIndent#1.{%
+  \settowidth{\ltxdoclet@indentlen}{~}%
+  \multiply\ltxdoclet@indentlen by\value{ltxdoclet@indent}\relax%
+  \leavevmode\kern\ltxdoclet@indentlen
+}
+% \end{macro}
+%
+% \begin{macro}{\ltdBreak}
+%   Setzt ein Element mit erlaubtem Umbruch danach.  
+\providecommand*{\ltdBreak}[1][]{%
+  #1\discretionary{}{\ltdIndent.}{}%
+}
+% \end{macro}
+% \begin{macro}{\ltd@DiscrSpace}
+%  Dieses Kommando ist ein Leerzeichen, welches 
+%  zu einer Einrückung umbrechen kann. Die Definition ist analog
+%  zu der in \pack{gmdoc-enhance}.
+\def\ltd@DiscrSpace{%
+  \ifx\protect\@typeset@protect%
+    \ifinner%
+        \space%  Wenn wir in einer inneren Box sind, soll das aktive
+% Leerzeichen wie ein normales Leerzeichen funktionieren, da es ja
+% hier sowieso keinen Zeilenumbruch gibt. Oder? Egal, unsere
+% Code-Kommentare sollten nie im inneren Modus auftauchen.
+    \else%
+      \ifhmode%
+        \unskip% Hmm, ich bin mir nicht ganz sicher, warum dieser
+% Befehl hier notwendig ist. Ohne gibt es jedenfalls gelegentlich
+% Zeilenumbrüche, die nicht an einen dieser '\discretionary's
+% fallen (und entsprechend kein '%' in der nächsten Zeile haben.)
+%
+        \discretionary{% Die "`Expansion"' dieses '\discretionary'-Objektes
+% falls es hier einen Zeilenumbruch gibt, ist am Ende der Zeile
+% leer.
+        }{\ltdIndent.% Dafür taucht am Anfang der nächsten Zeile
+% die Box auf, die durch '\ltdIndent' gesetzt wird.
+        }{% Falls kein Umbruch an dieser Stelle erfolgte, ist es
+% ebenfalls leer.
+        }%
+        ~% Jetzt setzen wir noch ein nicht-umbrechbares Leerzeichen. Falls
+% es einen Umbruch gab, war der ja davor.
+      \else% 
+        \space% Außerhalb des horizontalen Modus (d.h. im Mathe- und im
+% vertikalen Modus) hat unsere Spezialfunktion auch nichts
+% zu suchen.
+      \fi%
+    \fi%
+    \afterfi{%
+      \ltd@gobbleActiveSpaces}% Am Ende fressen wir alle weiteren
+% direkt       folgenden derartigen aktiven Leerzeichen auf, damit es nicht
+% mehrere auf einmal gibt.
+%
+% Eigentlich sorgt das obige '\unskip' ja schon dafür, dass mehrere
+% aufeinanderfolgende aktive Leerzeichen (die ja prinzipiell ein '~'
+% als skip einfügen), keine Probleme bereiten, nur das letzte bleibt übrig.
+% Damit ist das '\gmd@gobbleActiveSpaces' eigentlich nicht mehr
+% nötig. Aber wir entlasten damit den Zeilenumbruch-Algorithmus
+% etwas, wenn nicht mehrere '\discretionary's hintereinander kommen.
+  \else%
+    \space% Falls wir nicht im Typeset-Modus sind, sondern etwa in eine Datei
+% oder auf den Bildschirm schreiben, soll unser ' ' auch wie ein normales
+% Leerzeichen wirken. Schließlich findet da kein Zeilenumbruch statt.
+  \fi%
+}%
+% \end{macro}
+%
+%
+\def\afterfi#1#2\fi{\fi#1}
+%
+% Hier die Definition unseres Space-Fressers.
+\def\ltd@gobbleActiveSpaces{%
+  \expandafter\@ifnextchar\ltd@activeSpace% Wir überprüfen, ob das
+  % nächste Token ein aktives Leerzeichen ist.
+  {% Falls ja, \dots
+    \expandafter\ltd@gobbleActiveSpaces\@gobble% entsorgen wir es
+    % mit '\@gobble' und rufen uns dann selbst rekursiv auf.
+  }{}% Im anderen Fall machen wir gar nichts, womit die Rekursion
+  % beendet ist.
+}%
+%
 
 %
+% \subsection{Hyperlinks}
+%
+% '\hypertarget' setzt das \ltdHypertarget{test-target}{Target} leider auf die Höhe der
+% Grundlinie, so dass es gerade nicht zu sehen ist, wenn
+% man es von einem '\hyperlink' anspringt.
+%
+% Hier ein Workaround, der bei PDFs für Adobe Reader und Okular das richtige macht.
+% (Bei xdvi verschlechtert es die Situation für Links im unteren Teil der Seite.)
+%
+\newcommand*\ltdHypertarget[2]{%
+  \setbox\@tempboxa\hbox{#2}%
+  \@tempdima\ht\@tempboxa
+  \@tempdimb\dp\@tempboxa
+  \raisebox{1.5\@tempdima}[\@tempdima][\@tempdimb]%
+  {%
+    \hypertarget{#1}%
+    {%
+      \raisebox{-1.5\@tempdima}%
+      {%
+        \unhbox\@tempboxa%
+      }%  (raisebox)
+    }%  (hypertarget)
+  }% (raisebox)
+}
+%
+%
+
 % \subsection{Ende}
 % 
-%
 
 \endinput
 %</package>
-% (Jes, vere fino.)
 %
 % \Finale
 %\endinput
