@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-%%  (C) 2008 Paul Ebermann
+%%  (C) 2010 Paul Ebermann
 %%
 %%   Package ltxdoclet - Dokumentation von Java-Paketen.
 %%
@@ -31,9 +31,8 @@
 %
 % \iffalse
 %<*driver>
-\documentclass[dvipsnames]{scrartcl}
+\documentclass{scrartcl}
 %
-% Esperantajn tekstojn oni prefere entajpu per unikodaj literoj.
 \RequirePackage[utf8]{inputenc}
 %!\PrerenderUnicode{}
 \RequirePackage[ngerman]{babel}
@@ -241,7 +240,7 @@
   %  Schrift und etwas kleiner sein.
   % 
   \catcode`\ =\active% Leerzeichen wollen wir aktiv machen, und ...
-  \expandafter\let\ltd@activeSpace=\ltd@DiscrSpace% ('\let =\ltd@DiscrSpace')
+  %!\expandafter\let\ltd@activeSpace=\ltd@DiscrSpace% ('\let =\ltd@DiscrSpace')
   % 
   \obeylines% Zeilenumbrüche sollen bitte behalten werden.
   % (Alternativ könnten wir unseren Quelltext-Formatierer

@@ -1423,8 +1423,10 @@ public class PrettyPrinter
 				   SourceFormatter target)
     {
 	target.printSpecial("(");
+	target.pushIndent();
 	this.scan(tree.getExpression(), target);
 	target.printSpecial(")");
+	target.popIndent();
 	return null;
     }
 

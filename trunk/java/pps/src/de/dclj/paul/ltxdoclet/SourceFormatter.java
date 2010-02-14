@@ -36,6 +36,7 @@ public class SourceFormatter
 	this.currentLine = new StringBuilder(80);
 	this.indentStack = new ArrayDeque<Integer>();
 	this.indentStack.push(0);
+	this.currentLineLength = 0;
     }
 
     /**
@@ -103,7 +104,7 @@ public class SourceFormatter
      * begonnenen Zeilen erhalten eine Einrückung dieser Länge.
      */
     public void pushIndent() {
-	//	currentLine.append("\\noprint{indent="+currentLineLength+"}");
+	currentLine.append("\\ltdSetIndent{"+currentLineLength+"}");
 	this.indentStack.push(currentLineLength);
     }
 
@@ -116,7 +117,7 @@ public class SourceFormatter
      */
     public void addIndent() {
 	int newIndent = this.indentStack.peek() + 4;
-	//	currentLine.append("\\noprint{indent=" +newIndent+"}");
+	currentLine.append("\\ltdSetIndent{" +newIndent+"}");
 	this.indentStack.push(newIndent);
     }
 
@@ -129,7 +130,7 @@ public class SourceFormatter
      */
     public void popIndent() {
 	this.indentStack.pop();
-	//	currentLine.append("\\noprint{indent="+this.indentStack.peek()+"}");
+	currentLine.append("\\ltdSetIndent{"+this.indentStack.peek()+"}");
     }
 
 
@@ -138,10 +139,13 @@ public class SourceFormatter
      * Zeile eingerückt ist.
      */
     private void indent() {
-	if (hasIndent) return;
+	if (hasIndent)
+	    return;
+	currentLine.append("\\ltdIndent");
 	int count = indentStack.peek();
 	for (int i = 0; i < count; i++)
-	    currentLine.append('~');
+	    currentLine.append(' ');
+	currentLine.append(".");
 	currentLineLength = count;
 	hasIndent = true;
     }

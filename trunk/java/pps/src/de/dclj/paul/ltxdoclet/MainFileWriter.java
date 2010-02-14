@@ -88,13 +88,53 @@ public class MainFileWriter
 		}
 	    }     // of while
     }        // of MainFileWriter.waitForAllThreads()
+
+    /**
+     * Kopiert eine Datei (z.B. ein LaTeX-Paket) aus unseren
+     * Programm-Ressourcen in das Ausgabeverzeichnis.
+     * @param packageName der Name der Datei, z.B. {@code ltxdoclet.sty}.
+     */
+    private void copyPackage(String packageName)
+    {
+	try {
+	InputStream in =
+	    new BufferedInputStream(MainFileWriter.class.getResourceAsStream(packageName));
+	OutputStream out =
+	    new BufferedOutputStream(new FileOutputStream(new File(configuration.destdir, packageName)));
+	pipeInToOut(in, out);
+	in.close();
+	out.close();
+	}
+	catch(IOException io) {
+	    throw new RuntimeException("konnte das Package nicht kopieren: ",
+				       io);
+	}
+    }
+
+    /**
+     * Leitet den kompletten Inhalt einen InputStreams
+     * in einen OutputStream um.
+     *
+     * Diese Methode liest und schreibt jedes byte einzeln - man sollte
+     * also gepufferte Streams verwenden, damit es nicht zu langsam wird.
+     */
+    private void pipeInToOut(InputStream in, OutputStream out)
+	throws IOException
+    {
+	int r;
+	while(0 <= (r = in.read())) {
+	    out.write(r);
+	}
+    }
+
 	
     private void writePreamble()
     {
 	println("   % Report scheint für eine API jedenfalls besser als Artikel");
 	println("\\documentclass[final, 11pt, a4paper]{scrreprt}");
 	println();
-	println("\\usepackage[" +translateEncoding(configuration.docencoding) +
+	println("\\usepackage[" +
+		translateEncoding(configuration.docencoding) +
 		"]{inputenc}%  Kodierung der Eingabedateien");
 	println("\\usepackage[T1]{fontenc}%  Kodierung der Schriften");
 	println("\\usepackage{textcomp}");
@@ -109,24 +149,11 @@ public class MainFileWriter
 	println("\\usepackage{enumerate}");
 	println();
 	println("\\usepackage[dvipsnames]{color}");
-	//	println("\\definecolor{}
 	println();
-	println("\\makeatletter");
-	println("\\newenvironment*{sourcecode}{%");
-	println("   \\ttfamily\\setlength{\\parindent}{0pt}%");
-	println("   \\small\\obeyspaces\\obeylines%");
-	println("   \\setlength{\\baselineskip}{0.65\\baselineskip}%");
-	println("   \\par\\raggedright%");
-	println("}{\\par}");
-	println("\\newcommand*\\noprint[1]{}");
-	// \providecommand*\clap[1]{\hb@xt@\z@{\hss#1\hss}}
-	println("\\providecommand*\\clap[1]{\\hbox to 0pt{\\hss#1\\hss}}");
-	println("\\providecommand*\\clapon[2]{\\setbox\\@tempboxa\\hbox{#2}\\hbox to\\wd\\@tempboxa{\\hss#1\\hss}\\kern-\\wd\\@tempboxa\\unhbox\\@tempboxa}");
-	println("\\providecommand*\\markString{\\color{blue}}");
-	println("\\providecommand*\\markNumber{\\color[named]{ForestGreen}}");
-	println("\\providecommand*\\markLiteralKeyword{\\color[named]{Brown}}");
-	println("\\makeatother");
+	println("\\usepackage{ltxdoclet}");
 	println();
+	;
+	copyPackage("ltxdoclet.sty");
     }
 
     /**

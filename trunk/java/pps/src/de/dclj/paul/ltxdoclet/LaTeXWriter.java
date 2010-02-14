@@ -205,7 +205,7 @@ public class LaTeXWriter
     public void section(String prefix, Doc doc, String shortName)
     {
 	println("\\section[" + asLaTeXString(shortName) + "]{" + prefix +
-		"\\hypertarget{" + toRefLabel(doc) + "}{"
+		"\\ltdHypertarget{" + toRefLabel(doc) + "}{"
 		+asLaTeXString(doc.toString()) + "}}");
 	
     }
@@ -348,7 +348,7 @@ public class LaTeXWriter
 	    return "over-view";
 	}
 	// TODO
-	return doc.toString();
+	return removeSpaces(doc.toString());
     }
 
     /**
@@ -381,7 +381,7 @@ public class LaTeXWriter
     }
 
     public String referenceTarget(Doc doc, String label) {
-	return "\\hypertarget{" + toRefLabel(doc) + "}{" + label + "}";
+	return "\\ltdHypertarget{" + toRefLabel(doc) + "}{" + label + "}";
     }
 	
     /**
@@ -429,6 +429,15 @@ public class LaTeXWriter
 
     public String createLink(String labelText, String target) {
 	return "\\hyperlink{" +target + "}{"+ labelText +"}"; //+ " [\\pageref*{" + targetName +"}]";
+    }
+
+    private String removeSpaces(String t) {
+	StringBuilder b = new StringBuilder(t);
+	int index=0;
+	while((index = b.indexOf(" ", index))>=0) {
+	    b.deleteCharAt(index);
+	}
+	return b.toString();
     }
 
 
