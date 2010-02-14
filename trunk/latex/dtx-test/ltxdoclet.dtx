@@ -1,0 +1,112 @@
+% \iffalse meta-comment
+%
+%%  (C) 2008 Paul Ebermann
+%%
+%%   Package ltxdoclet - Dokumentation von Java-Paketen.
+%%
+%%   Die Datei ltxdoclet.dtx sowie die dazugehörige
+%%   ltxdoclet.ins sowie die damit generierte
+%%   ltxdoclet.sty stehen unter der
+%%   "LaTeX Project Public License" (LPPL, zu finden
+%%   unter http://www.latex-project.org/lppl/, sowie
+%%   auch in den meisten TeX-Distributionen in
+%%   texmf/docs/latex/base/lppl*.txt), Version 1.3b oder
+%%   später (nach Wahl des Verwenders).
+%%
+%%   Der 'maintenance-status' ist (zur Zeit) 'author-maintained'.
+%%   
+%%   Das heißt u.a., die Dateien dürfen frei vertrieben werden,
+%%   bei Änderungen (durch andere Personen als Paul Ebermann)
+%%   ist aber der Name der Datei zu ändern.
+%
+% \fi
+%
+% \iffalse
+% ---------------------------------------------
+%<package>\NeedsTeXFormat{LaTeX2e}[2003/12/01]%
+% -----------------------------------________________------------------
+%<package>\ProvidesPackage{ltxdoclet}[2010/02/14 v0.0 Dokumentation von Java-Paketen (PE)]
+% ------------------------------------________________-----------------
+% \fi
+%
+% \iffalse
+%<*driver>
+\documentclass{scrartcl}
+%
+% Esperantajn tekstojn oni prefere entajpu per unikodaj literoj.
+\RequirePackage[utf8x]{inputenc}
+\RequirePackage[ngerman]{babel}
+\addto{\extrasesperanto}{%
+  \renewcommand*{\generalname}{\^Generale}%
+  \GlossaryPrologue{%
+    \section{\^San\^goj}%
+  }%
+  \GlossaryMin=3\baselineskip
+  \IndexPrologue{%
+    \section{Indekso}
+    Kurzivaj nombroj indikas la lokojn, kie la indeks-ero estas priskribita,
+    substrekitaj nombroj indikas la lokon de la difino, la aliaj estas uzoj.
+  }
+  \IndexMin=5\baselineskip
+}
+
+\usepackage{ltxdoclet}
+
+\usepackage[bookmarks=false]{hyperref}
+\usepackage[countalllines, withmarginpar]{gmdoc}
+\let\pack\textrm%
+\renewcommand*{\EOFMark}{}
+
+\RecordChanges
+\begin{document}
+   % ^ ne taŭgas kiel specialsigno, ĉar ni
+   % bezonas ĝin por ^^B, ^^M ktp.
+   \catcode`\^=7%
+   \MakeShortVerb\'
+   \DocInput{ltxdoclet.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \GetFileInfo{ltxdoclet.sty}
+%
+%
+% \title{Das \pack{ltxdoclet}-Paket: Java-Dokumentation (und Quelltexte) in \LaTeX. \
+%   \thanks{ Dieses Dokument gehört zu \
+%    \pack{ltxdoclet}~\fileversion, von~\filedate.}}
+% \author{Paul Ebermann\thanks{\texttt{Paul-Ebermann@gmx.de}}}
+%
+% \maketitle
+% 
+%
+% \tableofcontents
+%
+% \section{Uzanta dokumentaĵo}
+%
+%
+% \StopEventually{\PrintChanges\PrintIndex}
+%
+% \section{Implementado}
+%
+%<*package>
+%
+%
+% \subsection{Opcioj}
+%
+% Jam fino :-)
+\endinput
+%</package>
+% (Jes, vere fino.)
+%
+% \Finale
+%\endinput
+
+
+%%% Folgendes ist nur für meinen Editor.
+%%%
+%%% Local Variables:
+%%% mode: docTeX
+%%% TeX-master: t
+%%% End:
