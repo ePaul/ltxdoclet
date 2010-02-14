@@ -103,7 +103,7 @@ public class SourceFormatter
      * begonnenen Zeilen erhalten eine Einrückung dieser Länge.
      */
     public void pushIndent() {
-	currentLine.append("\\noprint{indent="+currentLineLength+"}");
+	//	currentLine.append("\\noprint{indent="+currentLineLength+"}");
 	this.indentStack.push(currentLineLength);
     }
 
@@ -116,7 +116,7 @@ public class SourceFormatter
      */
     public void addIndent() {
 	int newIndent = this.indentStack.peek() + 4;
-	currentLine.append("\\noprint{indent=" +newIndent+"}");
+	//	currentLine.append("\\noprint{indent=" +newIndent+"}");
 	this.indentStack.push(newIndent);
     }
 
@@ -129,7 +129,7 @@ public class SourceFormatter
      */
     public void popIndent() {
 	this.indentStack.pop();
-	currentLine.append("\\noprint{indent="+this.indentStack.peek()+"}");
+	//	currentLine.append("\\noprint{indent="+this.indentStack.peek()+"}");
     }
 
 

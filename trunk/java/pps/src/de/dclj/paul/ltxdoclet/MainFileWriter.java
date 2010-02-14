@@ -98,7 +98,7 @@ public class MainFileWriter
 		"]{inputenc}%  Kodierung der Eingabedateien");
 	println("\\usepackage[T1]{fontenc}%  Kodierung der Schriften");
 	println("\\usepackage{textcomp}");
-	println("\\usepackage{luximono}% andere Schriftart");
+	println("\\usepackage[scaled]{luximono}% andere Schriftart");
 	if (Locale.getDefault().getLanguage().equals("de"))
 	    {
 		println("  % Neue deutsche Silbentrennung");
@@ -113,8 +113,10 @@ public class MainFileWriter
 	println();
 	println("\\makeatletter");
 	println("\\newenvironment*{sourcecode}{%");
-	println("   \\ttfamily\\setlength{\\parindent}{0pt}\\small\\obeyspaces\\obeylines%");
-	println("   \\setlength{\\baselineskip}{0.65\\baselineskip}\\par%");
+	println("   \\ttfamily\\setlength{\\parindent}{0pt}%");
+	println("   \\small\\obeyspaces\\obeylines%");
+	println("   \\setlength{\\baselineskip}{0.65\\baselineskip}%");
+	println("   \\par\\raggedright%");
 	println("}{\\par}");
 	println("\\newcommand*\\noprint[1]{}");
 	// \providecommand*\clap[1]{\hb@xt@\z@{\hss#1\hss}}

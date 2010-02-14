@@ -243,6 +243,8 @@ public class LtxDocletConfiguration
     /**
      * Ermittelt, ob dieses Doclet eine Option annimmt, und
      * wenn ja, wie viele Argumente sie nimmt.
+     * @return die Anzahl der Kommandozeilenargumente, die
+     *    diese Option darstellen, inklusive der Option selbst.
      */
     public int optionLength(String option) {
 	if ("-d".equals(option))
@@ -255,6 +257,12 @@ public class LtxDocletConfiguration
 	}
 	if ("-doctitle".equals(option)) {
 	    return 1;
+	}
+	if("-link".equals(option)) {
+	    return 2;
+	}
+	if("-linkoffline".equals(option)) {
+	    return 3;
 	}
 	// TODO: weitere Optionen
 	return 0;

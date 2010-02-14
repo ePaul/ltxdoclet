@@ -16,6 +16,7 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.element.TypeElement;
 import java.util.Set;
+import java.util.Collections;
 import javax.lang.model.element.Element;
 import java.util.List;
 import javax.lang.model.util.Types;
@@ -117,6 +118,50 @@ public class PrettyPrinter
 	Element parent = getElementForDoc(klasse);
 
 	return findInList(doc, parent.getEnclosedElements());
+    }
+
+    /**
+     * Sucht das Doc für das genannte Element.
+     */
+    private Doc getDocForElement(ExecutableElement element,
+				 ClassDoc classD)
+    {
+// 	System.err.println("getDocForElement(" + element + ", " +
+// 			   classD + ")");
+	if(element.getKind() == ElementKind.CONSTRUCTOR) {
+	    ConstructorDoc[] cons = classD.constructors(false);
+	    return findInList(element, cons);
+	}
+	else if (element.getKind() == ElementKind.METHOD){
+	    MethodDoc[] meths = classD.methods(false);
+	    return findInList(element, meths);
+	}
+	else {
+	    throw new IllegalArgumentException(element + " (" +
+					       element.getKind() +")");
+	}
+    }
+
+
+    private Doc findInList(ExecutableElement exe,
+			   ConstructorDoc[] cons) {
+	for(ConstructorDoc doc : cons) {
+	    if(gleicheSignatur(exe, doc)) {
+		return doc;
+	    }
+	}
+	return null;
+    }
+
+    private Doc findInList(ExecutableElement exe,
+			   MethodDoc[] cons) {
+	for(MethodDoc doc : cons) {
+	    if(doc.name().contentEquals(exe.getSimpleName()) &&
+	       gleicheSignatur(exe, doc)) {
+		return doc;
+	    }
+	}
+	return null;
     }
 
 
@@ -245,15 +290,18 @@ public class PrettyPrinter
 	case ANNOTATION_TYPE: {
 	    TypeElement type = (TypeElement)linkTarget;
 	    doc = root.classNamed(type.getQualifiedName().toString());
+	    // TODO: innere Klassen
 	    break;
 	}
 	case CONSTRUCTOR:
 	case METHOD: {
 	    ExecutableElement method = (ExecutableElement)linkTarget;
 	    TypeElement type = (TypeElement)method.getEnclosingElement();
-	    ClassDoc typeDoc = root.classNamed(type.getQualifiedName().toString());
-	    // TODO: richtige Methode/konstruktor raussuchen
-	    doc = null;
+	    ClassDoc typeDoc =
+		root.classNamed(type.getQualifiedName().toString());
+	    // richtige Methode/konstruktor raussuchen
+	    doc = getDocForElement(method, typeDoc);
+// 	    System.err.println("Method-Doc: " + doc);
 	    break;
 	}
 	case FIELD:
@@ -344,6 +392,69 @@ public class PrettyPrinter
 	return arrayBaseType(array.getType());
     }
 
+    /**
+     * Sucht ein Element in einem 
+     */
+    public Element findElement(Element scope, Name name, TypeMirror type)
+    {
+	if(scope.getKind() == ElementKind.TYPE_PARAMETER) {
+	    List<? extends TypeMirror> bndlist = 
+		((TypeParameterElement)scope).getBounds();
+	    if(bndlist.isEmpty()) {
+		bndlist =
+		    Collections.singletonList(elements.getTypeElement("java.lang.Object").asType());
+	    }
+	    for(TypeMirror bnd: bndlist){
+		Element subScope = types.asElement(bnd);
+		Element found = findElement(subScope, name, type);
+		if (found != null)
+		    return found;
+	    }
+	    return null;
+	}
+	List<? extends Element> list =
+	    (scope.getKind().isClass() || scope.getKind().isInterface()) ?
+	    elements.getAllMembers((TypeElement)scope) :
+	    scope.getEnclosedElements();
+	for(Element el : list) {
+	    if(el.getSimpleName().equals(name)) {
+		// TODO: Typ überprüfen
+		return el;
+	    }
+	}
+	Element enclosing = scope.getEnclosingElement();
+	if(enclosing == null)
+	    return null;
+	return findElement(enclosing, name, type);
+	
+    }  // findElement(Element, ...)
+
+
+    /**
+     * Sucht ein Element mit angegebenen Namen
+     * und Typ in einem Scope.
+     */
+    public Element findElement(Scope scope, Name name, TypeMirror type) {
+// 	System.err.println("findElement(" + scope + ", {" + name + "}, {" + type + "})");
+	for(Element el: scope.getLocalElements()) {
+// 	    System.err.println("lokal: " + el);
+	    if(el.getSimpleName().equals(name)) {
+		// TODO: Typ überprüfen
+		return el;
+	    }
+	}
+	TypeElement typeEl = scope.getEnclosingClass();
+	if (type != null) {
+	    Element inClass = findElement(typeEl, name, type);
+	    if (inClass != null)
+		return inClass;
+	}
+	Scope enclosing = scope.getEnclosingScope();
+	if(enclosing == null)
+	    return null;
+	return findElement(enclosing, name, type);
+
+    }  // findElement(Scope, ...)
 
 
     /**
@@ -354,8 +465,9 @@ public class PrettyPrinter
     public void scanType(Tree tree, SourceFormatter target) {
 	if (tree.getKind() == Tree.Kind.IDENTIFIER) {
 	    TypeMirror t =
-		trees.getTypeMirror(new TreePath(this.getCurrentPath(),
-						 tree));
+		trees.getTypeMirror(TreePath.
+				    getPath(this.getCurrentPath(),
+						tree));
 	    Element el = types.asElement(t);
 	    this.makeLink(tree.toString(), el, target);
 	    // TODO: eventl. Link setzen
@@ -365,14 +477,15 @@ public class PrettyPrinter
 	    //	    System.err.println("Scan als Type: " + tree + " : " + tree.getClass());
 	    this.scan(tree, target);
 	}
-    }
+    }  // scanType
     
 
 
     /**
-     * Druckt eine Variablendeklaration.
+     * Druckt eine Variablendeklaration (ohne das Semikolon am Ende).
      */
-    public void printVariableDecl(VariableTree var, SourceFormatter target) {
+    public void printVariableDecl(VariableTree var, SourceFormatter target)
+    {
 	this.scan(var.getModifiers(), target);
 	this.scanType(var.getType(), target);
 	target.print(" ");
@@ -393,10 +506,9 @@ public class PrettyPrinter
 	target.printId(var.getName());
 	ExpressionTree init = var.getInitializer();
 	if (init != null) {
-	    target.print(" = ");
+	    target.printSpecial(" = ");
 	    this.scan(init, target);
 	}
-	
     }
 
     /**
@@ -438,7 +550,7 @@ public class PrettyPrinter
 	    this.printVariableDecl(var, target);
 	    for(StatementTree stat : liste.subList(1, liste.size())) {
 		var = (VariableTree)stat;
-		target.print(", ");
+		target.printSpecial(", ");
 		this.printVariableInitializer(var, target);
 	    }
 	    return;
@@ -450,7 +562,7 @@ public class PrettyPrinter
 	    this.scan(exp.getExpression(), target);
 	    for(StatementTree stat : liste.subList(1, liste.size())) {
 		exp = (ExpressionStatementTree)stat;
-		target.print(", ");
+		target.printSpecial(", ");
 		this.scan(exp.getExpression(), target);
 	    }
 	    return;
@@ -458,7 +570,7 @@ public class PrettyPrinter
 	default:
 	    throw new IllegalArgumentException(first.getClass().getName());
 	}  // switch
-    } // printStatementCommaList
+    } // printForInit.
 
     /**
      * Druckt den Update-Teil eines For-Statements. Dies ist eine
@@ -484,7 +596,8 @@ public class PrettyPrinter
 
 
     /**
-     * Druckt eine Parameterliste.
+     * Druckt eine Parameterliste (d.h. eine Liste von
+     * Parameterdeklarationen einer Methode/eines Konstruktors).
      */
     public void printParameterList(List<? extends VariableTree> params,
 				   SourceFormatter target)
@@ -536,10 +649,10 @@ public class PrettyPrinter
      *         die die Einträge als Typen scannt.
      */
     public void printList(List<? extends Tree> liste,
-		   SourceFormatter target,
-		   String prefix,
-		   String infix,
-		   String postfix) 
+			  SourceFormatter target,
+			  String prefix,
+			  String infix,
+			  String postfix) 
     {
 	if (liste.isEmpty()) 
 	    return;
@@ -604,10 +717,12 @@ public class PrettyPrinter
 
     /**
      * Druckt ein Statement eingerückt.
+     * <p>
      * Ist dies ein Block-Statement, muss nichts weiter
      * getan werden (außer dieses auszugeben), da es
-     * ja selbst seinen Inhalt einrückt.
-     *
+     * ja selbst seinen Inhalt einrückt, und eine weitere
+     * Einrückung überflüssig ist.
+     *</p>
      * Andernfalls wird die Einrückung erhöht, eine neue Zeile
      * begonnen, das Statement gedruckt und die Einrückung wieder
      * zurückgesetzt.
@@ -650,13 +765,16 @@ public class PrettyPrinter
     /* ******** Deklarationen ******** */
 
 
+    /**
+     * Druckt eine Methode (oder einen Konstruktor o.ä.).
+     */
     @Override
     public Void visitMethod(MethodTree meth, SourceFormatter target)
     {
 	this.scan(meth.getModifiers(), target);
 	this.printTypeParameters(meth.getTypeParameters(), target, true);
 	if (meth.getName().contentEquals("<init>")) {
-	    // Klassenname?
+	    // TODO: Klassenname herausfinden
 	    target.print(currentElement.name());
 	}
 	else {
@@ -783,13 +901,12 @@ public class PrettyPrinter
     public Void visitDoWhileLoop(DoWhileLoopTree loop,
 				 SourceFormatter target)
     {
-	target.printSpecial("do");
-	this.printIndented(loop.getStatement(), target);
-	target.println();
+	StatementTree stat = loop.getStatement();
+	target.printSpecial("do ");
+	this.printIndented(stat, target);
+	target.print(stat.getKind() == Tree.Kind.BLOCK ? "\n" : " ");
 	target.printSpecial("while");
-	target.printSpecial("(");
 	this.scan(loop.getCondition(), target);
-	target.printSpecial(")");
 	target.printSpecial(";");
 	return null;
     }
@@ -813,12 +930,12 @@ public class PrettyPrinter
     public Void visitEnhancedForLoop(EnhancedForLoopTree loop,
 				     SourceFormatter target)
     {
-	target.printSpecial("for");
+	target.printSpecial("for ");
 	target.printSpecial("(");
 	this.printVariableDecl(loop.getVariable(), target);
 	target.printSpecial(":"); // TODO: a element b (\in)?
 	this.scan(loop.getExpression(), target);
-	target.printSpecial(")");
+	target.printSpecial(") ");
 	this.printIndented(loop.getStatement(), target);
 	return null;
     }
@@ -879,11 +996,12 @@ public class PrettyPrinter
     @Override
     public Void visitIf(IfTree ifS, SourceFormatter target)
     {
-	target.printSpecial("if");
+	target.printSpecial("if ");
 	//	target.printSpecial("(");
 	//	System.out.println("condition: " + ifS.getCondition());
 	this.scan(ifS.getCondition(), target);
 	//	target.printSpecial(")");
+	target.print(" ");
 	this.printIndented(ifS.getThenStatement(), target);
 	StatementTree elseTree = ifS.getElseStatement();
 	if (elseTree != null) {
@@ -1026,6 +1144,20 @@ public class PrettyPrinter
 
 
     /**
+     * Druckt eine Annotation.
+     */
+    @Override
+    public Void visitAnnotation(AnnotationTree tree,
+				SourceFormatter target)
+    {
+	target.printSpecial("@");
+	this.scanType(tree.getAnnotationType(), target);
+	this.printList(tree.getArguments(), target, "(", ",", ")");
+	return null;
+    }
+
+
+    /**
      * Druckt einen Array-Zugriff.
      */
     @Override
@@ -1151,23 +1283,61 @@ public class PrettyPrinter
 
     /**
      * Druckt einen Methodenaufruf.
+     * <p>
+     *  Hier liegt das Problem darin, dass wir einen Selector,
+     *  einige Typparameter und eine Argumentenliste haben, und
+     *  die Typparameter, falls vorhanden, syntaktisch eigentlich
+     *  in der Mitte des Selectors (d.h. vor seinem letzten
+     *  Identifier) stehen müssen.
      */
     @Override
+    @SuppressWarnings("ungültig")
     public Void visitMethodInvocation(MethodInvocationTree tree,
 				      SourceFormatter target)
     {
-	// TODO: nachschauen, ob das Ergebnis passt,
-	// oder ob die Typparameter woanders hin müssen.
-	//
 	// Ja, sie müssen eigentlich in den Selector
 	// eingebaut werden. Hmm.
 	ExpressionTree selector = tree.getMethodSelect();
-	if (selector != null) {
-	    //	    target.print("[[");
-	    this.scan(selector, target);
-	    //	    target.print("]]");
+	Name identifier;
+	TypeMirror containing;
+	Element methodElement;
+
+	TreePath selectorPath =
+	    TreePath.getPath(this.getCurrentPath(), selector);
+
+// 	System.out.println("--");
+// 	System.out.println("selector : " + selector);
+	TypeMirror t = trees.getTypeMirror(selectorPath);
+// 	System.out.println("type : " + t);
+// 	Element el = trees.getElement(selectorPath);
+// 	System.out.println("element: " + el);
+
+	switch(selector.getKind()) {
+	case MEMBER_SELECT:
+	    MemberSelectTree msTree = (MemberSelectTree)selector;
+	    ExpressionTree expr = msTree.getExpression();
+	    TreePath exprPath = TreePath.getPath(selectorPath, expr);
+	    containing = trees.getTypeMirror(exprPath);
+	    //	    System.out.println("expression type : " + containing);
+
+	    this.scan(expr, target);
+	    target.printSpecial(".");
+	    identifier = msTree.getIdentifier();
+
+	    methodElement =
+		findElement(types.asElement(containing), identifier, t);
+	    break;
+	case IDENTIFIER:
+	    identifier = ((IdentifierTree)selector).getName();
+	    Scope s = trees.getScope(selectorPath);
+	    methodElement = findElement(s, identifier, t);
+	    break;
+	default:
+	    throw new IllegalArgumentException("Methoden-Selector: [" + selector + "] (" + selector.getKind() +")");
 	}
 	this.printTypeList(tree.getTypeArguments(), target, "<", ", ", ">");
+	this.makeLink(identifier.toString(), methodElement, target);
+	//	System.out.println("methodElement: " + methodElement);
 	target.print("(");
 	this.printList(tree.getArguments(), target, "", ", ", "");
 	target.print(")");
@@ -1380,9 +1550,10 @@ public class PrettyPrinter
 			       SourceFormatter target)
     {
 	// TODO: Annotations
+	this.printList(mods.getAnnotations(), target, "", ", ", "\n");
 	Set<Modifier> modSet = mods.getFlags();
 	for(Modifier m : modSet) {
-	    target.print(m);
+	    target.printSpecial(m.toString());
 	    target.print(" ");
 	}
 	return null;
