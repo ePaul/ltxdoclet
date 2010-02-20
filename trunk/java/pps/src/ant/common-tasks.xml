@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="common-tasks"
+	 >
+
+  <description>
+    Übliche Targets für alle Projekte, gemeinsame Properties, etc.
+    Zum Einbinden in andere Ant-Projektdateien.
+
+    $Id$
+  </description>
+
+  <property name="classes.dir" location="classes" />
+  <property name="export.dir" location="export" />
+  <property name="doku.dir" location="doku"/>
+  <property name="doku.dir.tex" location="texdoku" />
+  <property name="src.dir" location="src" />
+  <property name="temp.dir" location="tmp" />
+
+
+  <target name="clean"
+	  description="räumt auf. (d.h. löscht Ausgabeverzeichnisse)">
+    <delete dir="${classes.dir}" />
+    <delete dir="${doku.dir}" />
+    <delete dir="${temp.dir}" />
+    <delete dir="${doku.dir.tex}" />
+  </target>
+
+
+</project>

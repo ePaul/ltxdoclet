@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="LaTeXdoclet"
+	 basedir="../../../../../">
+
+  <description>
+    LaTeX-Doclet. Ein Javadoc-Doclet, welches LaTeX-Quelltext ausspuckt.
+
+    $Id$
+  </description>
+  
+  <import file="${basedir}/src/ant/common-tasks.xml" />
+
+  <property name="api.url"
+	    value="file://localhost/usr/share/doc/openjdk-6-jre/api/" />
+  <property name="api.url.tree"
+	    value="file://localhost/usr/share/doc/openjdk-6-jre/jdk/api/javac/tree/" />
+  <property name="api.url.doclet"
+	    value="file://localhost/usr/share/doc/openjdk-6-jre/jdk/api/javadoc/doclet/" />
+
+<!-- Alternative URLs:
+  <property name="api.url"
+	    value="http://java.sun.com/javase/6/docs/api/" />
+  <property name="api.url.doclet"
+	    value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/doclet/" />
+  <property name="api.url.tree"
+	    value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/taglet/" /> -->
+
+
+  <path id="ltxdoclet-path">
+    <pathelement location="${classes.dir}" />
+    <pathelement location="/usr/lib/jvm/java-6-openjdk/lib/tools.jar"/>
+  </path>
+
+  <!-- - - - - - - - Die Targets. - - - - - - - - - -->
+
+
+  <target name="ltxpackage"
+	  description="generiert das LaTeX-Paket aus dessen Quelltext."
+	  >
+    <mkdir dir="${temp.dir}" />
+    <copy todir="${temp.dir}">
+      <fileset dir="${src.dir}/de/dclj/paul/ltxdoclet">
+	<include name="ltxdoclet.dtx"/>
+	<include name="ltxdoclet.ins"/>
+      </fileset>
+    </copy>
+    <echo file="${temp.dir}/docstrip.cfg">%
+% (leere Datei, um den im System eingestellten
+%  Pfad (texmf/tex/latex/paul/) zum Generieren von
+%  Dateien abzuschalten.)</echo>
+    <!-- docstrip -->
+    <exec executable="latex"
+	  dir="${temp.dir}"
+	  failonerror="true"
+	  taskname="create-sty"
+	  >
+      <arg value="-halt-on-error"/>
+      <arg value="ltxdoclet.ins" />
+    </exec>
+    <mkdir dir="${classes.dir}" />
+    <copy todir="${classes.dir}/de/dclj/paul/ltxdoclet">
+      <fileset dir="${temp.dir}">
+	<include name="ltxdoclet.sty"/>
+      </fileset>
+      <!-- wir filtern die Zeilen mit % am Anfang raus
+	   (die werden von docstrip übrig gelassen, falls
+	   noch Leerzeichen davor sind).
+	-->
+      <filterchain>
+	<linecontainsregexp negate="true">
+	  <regexp pattern="^\s+%[^%]" />
+	</linecontainsregexp>
+      </filterchain>
+    </copy>
+    <delete dir="${temp.dir}" />
+  </target>
+
+  <target name="classes"
+	  description="kompiliert die Java-Klassen für das LaTeX-Doclet.">
+    <mkdir dir="${classes.dir}" />
+    <javac destdir="${classes.dir}"
+	   encoding="utf8"
+	   source="5"
+	   debug="on"
+	   srcdir="${src.dir}"
+	   >
+      <compilerarg value="-Xlint" />
+      <classpath refid="ltxdoclet-path" />
+      <include name="de/dclj/paul/ltxdoclet/*.java" />
+    </javac>
+  </target>
+
+  <target name="htmldoku"
+	  description="API-Doku (in HTML) des LaTeX-doclets"
+ 	  depends="classes"
+	  >
+    <mkdir dir="${doku.dir}" />
+    <javadoc destdir="${doku.dir}"
+	     version="on"
+	     encoding="utf-8"
+	     docencoding="utf-8"
+	     charset="utf-8"
+	     taskname="javadoc-html"
+	     >
+      <classpath refid="ltxdoclet-path" />
+      <packageset dir="${src.dir}"
+		  includes="de/dclj/paul/ltxdoclet" />
+      <link href="${api.url}" />
+      <link href="${api.url.tree}" />
+      <link href="${api.url.doclet}" />
+    </javadoc>
+  </target>
+
+  <target name="latexdoku"
+	  description="API-Doku (in LaTeX) des LaTeX-doclets"
+	  depends="classes, ltxpackage"
+	  >
+<!--    <mkdir dir="${doku.dir.tex}" /> -->
+    <javadoc destdir="${doku.dir.tex}"
+	     version="on"
+	     encoding="utf-8"
+	     taskname="javadoc-ltx"
+	     private="true"
+	     failonerror="true"
+	     >
+      <classpath refid="ltxdoclet-path" />
+      <packageset dir="${src.dir}"
+		  includes="de/dclj/paul/ltxdoclet" />
+      <link href="${api.url}" />
+      <link href="${api.url.tree}" />
+      <link href="${api.url.doclet}" />
+      <doclet name="de.dclj.paul.ltxdoclet.DocletStart"
+	      path="${classes.dir}">
+	<param name="-includesource"/>
+      </doclet>
+    </javadoc>
+  </target>
+
+  <target name="pdfdoku"
+	  description="API-Doku (in PDF) des LaTeX-doclets"
+	  depends="latexdoku" >
+    <exec executable="pdflatex"
+	  dir="${doku.dir.tex}"
+	  failonerror="true"
+	  taskname="pdflatex 1">
+      <arg value="-halt-on-error" />
+      <arg value="doku-main.tex" />
+    </exec>
+    <exec executable="pdflatex"
+	  failonerror="true"
+	  dir="${doku.dir.tex}"
+	  taskname="pdflatex 2">
+      <arg value="-halt-on-error" />
+      <arg value="doku-main.tex" />
+    </exec>
+  </target>
+
+</project>
