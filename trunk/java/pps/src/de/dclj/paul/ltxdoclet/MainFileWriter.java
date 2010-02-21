@@ -42,7 +42,7 @@ public class MainFileWriter
 	chapter("Übersicht", false);
 	ltxwrite( configuration.doctitle + " besteht aus den folgenden Packages. Eine");
 	ltxwrite( " kurze Beschreibung folgt danach.");
-	section("Package-Liste");
+	//	section("Package-Liste", );
 	writePackageList();
 	section("Beschreibung");
 	writeOverview();
@@ -138,7 +138,7 @@ public class MainFileWriter
 		"]{inputenc}%  Kodierung der Eingabedateien");
 	println("\\usepackage[T1]{fontenc}%  Kodierung der Schriften");
 	println("\\usepackage{textcomp}");
-	println("\\usepackage[scaled]{luximono}% andere Schriftart");
+	println("\\usepackage[scaled]{luximono}% andere Schriftart für sourcecode");
 	if (Locale.getDefault().getLanguage().equals("de"))
 	    {
 		println("  % Neue deutsche Silbentrennung");
@@ -168,11 +168,19 @@ public class MainFileWriter
     }
 
 	
+    /**
+     * Erstellt den Überblick über die Package-Sammlung,
+     * mit Beschreibung etc.
+     */
     private void writeOverview()
     {
-	//... 
+	writeDescription(configuration.root);
     }
 	
+
+    /**
+     * Gibt eine Liste der Packages aus.
+     */
     private void writePackageList()
     {
 	println("   % Liste der Packages:");
@@ -181,7 +189,8 @@ public class MainFileWriter
 	for (int i = 0; i < pkgs.length; i++)
 	    {
 		PackageDoc pd = pkgs[i];
-		println("\\item " + asLaTeXString(pd) + "\\dotfill " + referenceTo(pd));
+		println("\\item " + createLink(pd) + "\\dotfill " +
+			referenceTo(pd));
 		newLine();
 		writeInlineTags(pd.firstSentenceTags());
 			

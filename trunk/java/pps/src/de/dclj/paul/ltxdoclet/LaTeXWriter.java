@@ -16,6 +16,9 @@ import javax.lang.model.element.Element;
 //import javax.lang.model.type.TypeVariable;
 //import javax.lang.model.type.WildcardType;
 
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * Einige generelle Methoden zum Schreiben von LaTeX-Dokumenten.
@@ -193,6 +196,21 @@ public class LaTeXWriter
 	chapter(name, true);
     }
 	
+    /**
+     * Eine Kapitelüberschrift mit Link.
+     */
+    public void chapter(String prefix, Doc doc, String shortName)
+    {
+	String ref = toRefLabel(doc);
+	println("\\chapter[" + asLaTeXString(shortName) + "]{" + prefix +
+		"\\ltdHypertarget{" + ref + "}{"
+		+asLaTeXString(doc.toString()) + "}}\\label{"+ref+"}");
+    }
+
+    public void chapter(String prefix, Doc doc) {
+	chapter(prefix, doc, prefix + doc);
+    }
+
 	
     /**
      * Beginnt einen neuen Abschnitt.
@@ -204,9 +222,10 @@ public class LaTeXWriter
 
     public void section(String prefix, Doc doc, String shortName)
     {
+	String ref = toRefLabel(doc);
 	println("\\section[" + asLaTeXString(shortName) + "]{" + prefix +
-		"\\ltdHypertarget{" + toRefLabel(doc) + "}{"
-		+asLaTeXString(doc.toString()) + "}}");
+		"\\ltdHypertarget{" + ref + "}{"
+		+asLaTeXString(doc.toString()) + "}}\\label{"+ref+"}");
 	
     }
 
@@ -319,6 +338,10 @@ public class LaTeXWriter
 	app.append(t);
     }
 
+
+    /**
+     * Erstellt eine verlinkte Version des Typnamens von t.
+     */
     public String typeRef(Type t) {
 	StringBuilder b = new StringBuilder();
 	typeRef(t, b);
@@ -381,7 +404,9 @@ public class LaTeXWriter
     }
 
     public String referenceTarget(Doc doc, String label) {
-	return "\\ltdHypertarget{" + toRefLabel(doc) + "}{" + label + "}";
+	String ref = toRefLabel(doc);
+	return "\\ltdHypertarget{" + ref + "}{" + label + "}"+
+	    "\\label{"+ref +"}";
     }
 	
     /**
@@ -395,17 +420,147 @@ public class LaTeXWriter
 	Tag[] tags = d.tags();
 	if (tags.length > 0) {
 	    println("\\begin{description}");
-	    for (Tag tag : tags)
-		{
-		    println("\\item[" + tagName(tag) + "] ");
-		    writeInlineTags(tag.inlineTags());
-// 		    print("[" + tag+ "| kind:" + tag.kind()+ "| name: "
-// 			  + tag.name() + "|text: "+ tag.text() + "]");
-// 		    newLine(); 
-		}
-	println("\\end{description}");
+	    if(d instanceof ExecutableMemberDoc) {
+		ExecutableMemberDoc emd = (ExecutableMemberDoc)d;
+		writeTypeParams(emd.typeParamTags());
+		writeParams(emd.paramTags());
+		writeThrows(emd.throwsTags());
+	    }
+	    writeNormalTags(normalTags(tags));
+	    writeSeeTags(seeTags(tags));
+	    println("\\end{description}");
 	}
     }
+
+    public void writeTypeParams(ParamTag[] tags) {
+	if(tags.length > 0) {
+	    println("\\item[Typparameter] ~");
+	    println("\\begin{description}");
+	    for(ParamTag pt : tags) {
+		writeParamTag(pt);
+	    }
+	    println("\\end{description}");
+	}
+    }
+
+    public void writeParams(ParamTag[] tags) {
+	if(tags.length > 0) {
+	    println("\\item[Parameter] ~");
+	    println("\\begin{description}");
+	    for(ParamTag pt : tags) {
+		writeParamTag(pt);
+	    }
+	    println("\\end{description}");
+	}
+    }
+
+    public void writeThrows(ThrowsTag[] tags) {
+	if(tags.length > 0) {
+	    println("\\item[Exceptions] ~");
+	    println("\\begin{description}");
+	    for(ThrowsTag tt : tags) {
+		writeThrowsTag(tt);
+	    }
+	    println("\\end{description}");
+	}
+    }
+
+    public void writeNormalTags(Tag[] tags) {
+	if (tags.length > 0) {
+	    for (Tag tag : tags) {
+		println("\\item[" + tagName(tag) + "] ");
+		writeInlineTags(tag.inlineTags());
+	    }
+	}
+    }
+
+    public void writeSeeTags(SeeTag[] tags) {
+	if(tags.length > 0) {
+	    println("\\item[Siehe auch] ~");
+	    print("\\noprint"); // um das erste Komma wieder aufzuessen.
+	    for(SeeTag t : tags) {
+		print(", ");
+		writeSeeTag(t);
+	    }
+	}
+    }
+
+
+    /**
+     * Filtert alle Tags heraus, die speziell behandelt werden, und gibt
+     * die übrigen zurück.
+     * Die herausgefilterten sind:
+     * <ul>
+     *    <li>@throws/@ecxeption
+     *    <li>@param
+     *    <li>@see
+     * </ul>
+     */
+    public Tag[] normalTags(Tag[] tags) {
+	Tag[] result = new Tag[tags.length];
+	int j = 0;
+	for(Tag t : tags) {
+	    if(!nonNormalTagKinds.contains(t.kind())) {
+		result[j] = t;
+		j++;
+	    }
+	}
+	return j == tags.length ? result :
+	    Arrays.copyOfRange(result, 0, j);
+    }
+
+
+    private final Set<String> nonNormalTagKinds =
+	new HashSet<String>(Arrays.asList("@throws", "@see", "@param"));
+
+
+    private SeeTag[] seeTags(Tag[] tags) {
+	SeeTag[] result = new SeeTag[tags.length];
+	int j = 0;
+	for(Tag t : tags) {
+	    if("@see".equals(t.kind())) {
+		result[j] = (SeeTag)t;
+		j++;
+	    }
+	}
+	return j == tags.length ? result :
+	    Arrays.copyOfRange(result, 0, j);
+    }
+
+
+    /**
+     * schreibt ein generisches Block-Tag.
+     */
+    public void writeTag(Tag tag) {
+	println("\\item[" + tagName(tag) + "]");
+	writeInlineTags(tag.inlineTags());
+    }
+
+    public void writeThrowsTag(ThrowsTag tag) {
+	println("\\item[" + typeRef(tag.exceptionType()) + "]");
+	writeInlineTags(tag.inlineTags());
+    }
+
+
+    public void writeParamTag(ParamTag tag) {
+	println("\\item[" + tag.parameterName() + "]");
+	writeInlineTags(tag.inlineTags());
+    }
+
+    public void writeSeeTag(SeeTag tag) {
+	//	println("\\noprint{writeSeeTag(" + tag + ")}");
+	String className = tag.referencedClassName();
+	//	println("\\noprint{className=" + className+"}");
+	if (className == null) {
+	    // expliziter HTML-Link
+	    // TODO
+	    print(asLaTeXString(tag.toString()));
+	}
+	else {
+	    writeLinkTag(tag);
+	}
+    }
+
 
     /**
      * Ermittelt den Namen eines Tags in einer Tag-Liste.
@@ -462,81 +617,84 @@ public class LaTeXWriter
 	return createLink("", target);
     }
 
+
+    void writeLinkTag(SeeTag tag, Doc doc) {
+	if(tag.name().equals("@linkplain")) {
+	    print(createLink(tag.label(), doc));
+	}
+	else {
+	    print("\\texttt{" + createLink(tag.label(), doc)+ "}");
+	}
+    }
+
     /**
-     * Schreibt ein Link-Tag (bzw. den Inhalt eines See-Tags) hinaus.
+     * Schreibt ein {@linkplain SeeTag Link-Tag} (bzw. den Inhalt
+     * eines {@link SeeTag}s) hinaus.
+     *
+     * Hier noch ein {@linkplain PackageWriter Testlink}
+     * und {@link ClassWriter}.
+     * @see PrettyPrinter
      */
     public void writeLinkTag(SeeTag st) {
+	print("\\noprint{"+st+"}");
+       
 	MemberDoc md = st.referencedMember();
 	if (md != null)
 	    {
-		if (md.isIncluded())
-		    {
-			print(createLink(st.label(), md));
-		    }
-		else
-		    {
-			if (st.label().equals(""))
-			    {
-				print(asLaTeXString(md) + " [" + referenceTo(md)+ "]");
-			    }
-			else 
-			    {
-				print(st.label() + " [nicht hier] ");
-			    }
-		    }
+		writeLinkTag(st, md);
 		return;
 	    }        // if
+	// kein Member
 	ClassDoc cd = st.referencedClass();
 	if (cd != null)
 	    {
-		if (cd.isIncluded())
-		    {
-			print(createLink(st.label(), cd));
-		    }
-		else 
-		    {
-			if (st.label().equals(""))
-			    {
-				print(asLaTeXString(cd) + " [" + referenceTo(cd)+ "]");
-			    }
-			else 
-			    {
-				print(st.label() + "[ nicht hier ]");
-			    }
-		    }
+		writeLinkTag(st, cd);
 		return;
 	    }
+	// keine Klasse
 	PackageDoc pd = st.referencedPackage();
+	if (pd != null) {
+	    writeLinkTag(st, pd);
+	    return;
+	}
+	// kein Package - was dann?
+	print("{«Link:" + st +"|" +st.referencedClassName() + "|"+ st.label() + "»}");
 	// ...
-	configuration.root.printNotice("Zur Zeit sind nur Links zu Klassen und Member implementiert.");
+	//	configuration.root.printNotice("Zur Zeit sind nur Links zu Klassen und Member implementiert.");
+    }
+
+    public void writeInlineTag(Tag t) {
+	if (t.kind().equalsIgnoreCase("Text"))    // Puren Text umwandeln
+	    ltxwrite(t.text());
+	else if(t.name().equals("@LaTeX"))  // LaTeX-Quelltext direkt verwenden
+	    print(t.text());
+	else if (t.name().equalsIgnoreCase("@code")) {
+	    // TODO: Code-Formatierung?
+	    print("\\verb!" + t.text() + "!");
+	}
+	else if(t instanceof SeeTag)        // Inline-See-Tag (@link)
+	    {
+		SeeTag st = (SeeTag)t;
+		writeLinkTag(st);
+	    }        // else
+	else 
+	    configuration.root.printNotice("Unbekanntes Inline-Tag: " + t);
     }
 
 
     /**
-     * Schreibt mehrere Tags nacheinander aus. Dies ist gedacht für Inline- und Text-Tags.
-     * Diese werden z.B. von Doc.inlineTags() und Doc.firstSentenceTags() zurückgegeben.
+     * Schreibt mehrere Tags nacheinander. Dies ist gedacht für
+     * Inline- und Text-Tags.
+     * Diese werden z.B. von Doc.inlineTags() und
+     * Doc.firstSentenceTags() zurückgegeben.
      */
     public void writeInlineTags(Tag[] tags)
     {
-	for (Tag t : tags)
-	    {
-		if (t.kind().equalsIgnoreCase("Text"))    // Puren Text umwandeln
-		    ltxwrite(t.text());
-		else if(t.name().equals("@LaTeX"))  // LaTeX-Quelltext direkt verwenden
-		    print(t.text());
-		else if (t.name().equalsIgnoreCase("@code")) {
-		    // TODO: Code-Formatierung?
-		    print("\\verb!" + t.text() + "!");
-		}
-		else if(t instanceof SeeTag)        // Inline-See-Tag (@link)
-		    {
-			SeeTag st = (SeeTag)t;
-			writeLinkTag(st);
-		    }        // else
-		else 
-		    configuration.root.printNotice("Unbekanntes Inline-Tag: " + t);
-	    }        // of for
-    }        // of writeTags
+	for (Tag tag : tags) {
+		writeInlineTag(tag);
+	}
+	println();
+    }  // writeInlineTags
 
 
     public void newParagraph() {

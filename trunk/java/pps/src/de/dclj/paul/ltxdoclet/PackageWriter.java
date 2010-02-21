@@ -33,10 +33,10 @@ public class PackageWriter
 	ClassDoc[] classes = doc.allClasses();
 	// parallele Threads für die einzelnen Dateien.
 	writeClasses(classes);
-	chapter("Package " + doc);
-	println(referenceTarget(doc));
-	section("Übersicht");
+	chapter("Package ", doc);
+	println();
 	writeInlineTags(doc.firstSentenceTags());
+	println();
 	section("Klassen-Liste");
 	println("\\begin{description}");
 	for (int i = 0; i < classes.length; i++)
@@ -49,8 +49,10 @@ public class PackageWriter
 		else 
 		    print(createLink(cd));
 		println("}]");
-		println(referenceTo(cd));
 		writeInlineTags(cd.firstSentenceTags());
+		print("\\hfill");
+		println(referenceTo(cd));
+		println();
 	    }
 	println("\\end{description}");
 	section("Package-Beschreibung");

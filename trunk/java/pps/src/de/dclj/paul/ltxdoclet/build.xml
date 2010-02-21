@@ -33,6 +33,8 @@
 
   <!-- - - - - - - - Die Targets. - - - - - - - - - -->
 
+  <!-- ltxpackage -->
+
 
   <target name="ltxpackage"
 	  description="generiert das LaTeX-Paket aus dessen Quelltext."
@@ -75,6 +77,8 @@
     <delete dir="${temp.dir}" />
   </target>
 
+  <!-- classes -->
+
   <target name="classes"
 	  description="kompiliert die Java-Klassen für das LaTeX-Doclet.">
     <mkdir dir="${classes.dir}" />
@@ -90,6 +94,8 @@
     </javac>
   </target>
 
+  <!-- htmldoku -->
+
   <target name="htmldoku"
 	  description="API-Doku (in HTML) des LaTeX-doclets"
  	  depends="classes"
@@ -101,6 +107,8 @@
 	     docencoding="utf-8"
 	     charset="utf-8"
 	     taskname="javadoc-html"
+	     overview="src/de/dclj/paul/ltxdoclet/overview.html"
+	     failonerror="true"
 	     >
       <classpath refid="ltxdoclet-path" />
       <packageset dir="${src.dir}"
@@ -121,6 +129,7 @@
 	     encoding="utf-8"
 	     taskname="javadoc-ltx"
 	     private="true"
+	     overview="src/de/dclj/paul/ltxdoclet/overview.html"
 	     failonerror="true"
 	     >
       <classpath refid="ltxdoclet-path" />

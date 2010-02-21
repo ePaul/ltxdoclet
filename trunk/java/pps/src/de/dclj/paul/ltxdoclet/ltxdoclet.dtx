@@ -250,6 +250,8 @@
   %  und erlaubt einen gewissen Zeilenumbruch im Quelltext. Wir müssen
   %  uns da aber noch etwas besseres ausdenken (siehe oben der Versuch
   % mit den aktiven Leerzeichen.
+  \setlength{\baselineskip}{0.7\baselineskip}% Den Zeilenabstand
+  % setzen wir auch runter, da wir ja eine kleinere Schriftart nehmen.
   %
 }{% Am Ende der Umgebung muss nicht so viel gemacht werden:
   \par% wir beenden nur noch den Absatz (und alle Definitionen
@@ -376,7 +378,8 @@
 % man es von einem '\hyperlink' anspringt.
 %
 % Hier ein Workaround, der bei PDFs für Adobe Reader und Okular das richtige macht.
-% (Bei xdvi verschlechtert es die Situation für Links im unteren Teil der Seite.)
+% (Bei xdvi verschlechtert es die Situation für Links im unteren Teil
+% der Seite.)
 %
 \newcommand*\ltdHypertarget[2]{%
   \setbox\@tempboxa\hbox{#2}%

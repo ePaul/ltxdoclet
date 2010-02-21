@@ -16,7 +16,9 @@ public class DocletStart
 {
 
     /**
-     * Diese Methode wird beim Start aufgerufen.
+     * Diese Methode wird von Javadoc aufgerufen, um
+     * unser Doclet arbeiten zu lassen.
+     * @param root alle Infos, die wir brauchen.
      * @return {@code true} falls erfolgreich, 
      *   {@code false} falls es einen Fehler gab.
      */

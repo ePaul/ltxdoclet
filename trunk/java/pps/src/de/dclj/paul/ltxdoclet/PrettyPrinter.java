@@ -393,7 +393,7 @@ public class PrettyPrinter
     }
 
     /**
-     * Sucht ein Element in einem 
+     * Sucht ein Element in einem Scope.
      */
     public Element findElement(Element scope, Name name, TypeMirror type)
     {
@@ -818,7 +818,7 @@ public class PrettyPrinter
     public Void visitClass(ClassTree klasse,
 			   SourceFormatter target)
     {
-	target.print("«Typdeklaration: " +klasse.getSimpleName() +"»;");
+	target.print("«Typdeklaration: " +klasse.getSimpleName() +"»");
 	// TODO
 	return null;
     }
@@ -853,8 +853,10 @@ public class PrettyPrinter
 	target.printSpecial("{");
 	target.addIndent();
 	target.println();
+	//	System.err.println("visitBlock(){ ...");
 	this.printList(block.getStatements(), target,
 		  "", "\n", "\n");
+	//	System.err.println("... } // visitBlock() ");
 	target.popIndent();
 	target.printSpecial("}");
 	return null;
@@ -1295,7 +1297,9 @@ public class PrettyPrinter
     public Void visitMethodInvocation(MethodInvocationTree tree,
 				      SourceFormatter target)
     {
-	// Ja, sie müssen eigentlich in den Selector
+// 	System.err.println("visitMethodInvocation() { ... ");
+
+	// Ja, die Typparameter müssen eigentlich in den Selector
 	// eingebaut werden. Hmm.
 	ExpressionTree selector = tree.getMethodSelect();
 	Name identifier;
@@ -1312,6 +1316,8 @@ public class PrettyPrinter
 // 	Element el = trees.getElement(selectorPath);
 // 	System.out.println("element: " + el);
 
+// 	System.err.println("selector: " + selector + " (" +
+// 			   selector.getKind()+")");
 	switch(selector.getKind()) {
 	case MEMBER_SELECT:
 	    MemberSelectTree msTree = (MemberSelectTree)selector;
@@ -1329,8 +1335,30 @@ public class PrettyPrinter
 	    break;
 	case IDENTIFIER:
 	    identifier = ((IdentifierTree)selector).getName();
-	    Scope s = trees.getScope(selectorPath);
+	    //	    System.err.println("identifier: " + identifier);
+	    Scope s;
+// 	    if(identifier.contentEquals("this") ||
+// 	       identifier.contentEquals("super")) {
+// 		// TODO: passenden Konstruktor raussuchen und verlinken.
+// 		TreePath path = this.getCurrentPath();
+// 		System.err.println("path: " + path);
+// //  		for(Tree tr : path) {
+// //  		    System.err.print(tr+", ");
+// //  		}
+// 		for (TreePath tp = selectorPath;
+// 		     tp != null ;
+// 		     tp = tp.getParentPath()) {
+// 		    System.err.println("{" + tp.getLeaf().getKind() + "}, ");
+// 		    s = trees.getScope(tp);
+// 		}
+// 		s = trees.getScope(path);
+// 		System.err.println("scope: " + s);
+// 	    }
+// 	    else {
+	    s = trees.getScope(selectorPath);
+// 	    }
 	    methodElement = findElement(s, identifier, t);
+	    //	    System.err.println("methodElement: " + methodElement);
 	    break;
 	default:
 	    throw new IllegalArgumentException("Methoden-Selector: [" + selector + "] (" + selector.getKind() +")");
@@ -1341,6 +1369,8 @@ public class PrettyPrinter
 	target.print("(");
 	this.printList(tree.getArguments(), target, "", ", ", "");
 	target.print(")");
+
+// 	System.err.println("... } // visitMethodInvocation() ");
 	
 	return null;
     }
