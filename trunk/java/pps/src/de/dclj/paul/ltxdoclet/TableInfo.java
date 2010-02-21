@@ -27,8 +27,8 @@ import java.util.*;
  *  <tr><td>data</td><td colspan=2>Span two columns</td>
  *  <tr><td><i>more data</i></td><td align=right>right</td><td align=left>left</td>
  *  <tr><td><pre>
- *    1
- *  2
+ *  1
+ *    2
  *  3
  *  4
  *  </pre></td>
@@ -61,11 +61,11 @@ public class TableInfo {
 
 
     int hasNumProp( String prop, Map<String,String> p ) {
-	String val = p.get(prop) ;
-	if( val == null )
-	    return -1;
-	try { return Integer.parseInt( val ); }
-	catch( Exception ex) { return -1; }
+        String val = p.get(prop) ;
+        if( val == null )
+            return -1;
+        try { return Integer.parseInt( val ); }
+        catch( Exception ex) { return -1; }
     }
 
     /**
@@ -77,74 +77,88 @@ public class TableInfo {
      *  @param table the input string that has the entire table definition in it.
      *  @param off the offset into <code>&lt;table&gt;</code> where scanning should start
      */
-    public TableInfo( Map<String,String> p, StringBuilder ret, String table, int off ) {
-	props = p;
+    public TableInfo( Map<String,String> p, StringBuilder ret, String table, int off )
+    {
+        props = p;
+        if( p == null )
+            return;
 	tblno = tblcnt++;
-	tc = countName(tblno);
-	if( p == null )
-	    return;
-	String val = p.get("border");
-	border = false;
-	if( val != null ) {
-	    border = true;
-	    bordwid = 2;
-	    if( val.equals("") == false ) {
-		try {bordwid = Integer.parseInt( val ); } catch( Exception ex ) {}
-		if( bordwid == 0 )
-		    border = false;
-	    }
-	}
-	ret.append("\n% Table #"+tblno+"\n");
-	byte[]b = table.getBytes();
-	int col = 0;
-	int row = 0;
-	for( int i = off; i < b.length; ++i ) {
-	    if( b[i] == '<' ) {
-		if( table.substring( i, i+7 ) .equalsIgnoreCase("</table") ){
-		    break;
-		} else if( table.substring( i, i+4 ) .equalsIgnoreCase("</tr") ){
-		    break;
-		} else if( table.substring( i, i+3 ) .equalsIgnoreCase("<tr") ){
-		    if( row++ > 0 )
-			break;
-		} else if( table.substring( i, i+3 ) .equalsIgnoreCase("<td") ){
+        tc = countName(tblno);
+        String val = p.get("border");
+        border = false;
+        if( val != null ) {
+            border = true;
+            bordwid = 2;
+            if( val.equals("") == false ) {
+                try {bordwid = Integer.parseInt( val ); } catch( Exception ex ) {}
+                if( bordwid == 0 )
+                    border = false;
+            }
+        }
+        ret.append("\n% Table #"+tblno+"\n");
+        // TODO: getBytes versus substring für nicht-1-Byte-Encodings?
+	//        byte[]b = table.getBytes();
+        int col = 0;
+        int row = 0;
+        for( int i = off; i < table.length(); ++i ) {
+            if( table.charAt(i) == '<' ) {
+                if( table.length() > i+6 &&
+                    table.substring( i, i+7 ) .equalsIgnoreCase("</table") ) {
+		    ret.append("\\noprint{</table}");
+                    break;
+                } else if( table.length() > i+3 &&
+                           table.substring( i, i+4 ) .equalsIgnoreCase("</tr") ){
+		    ret.append("\\noprint{</tr}");
+                    break;
+                } else if( table.length() > i+2 &&
+			   table.substring( i, i+3 ) .equalsIgnoreCase("<tr") ){
+		    ret.append("\\noprint{<tr}");
+                    if( row++ > 0 ) {
+                        break;
+		    }
+                } else if(table.length() > i+2 && 
+			  table.substring( i, i+3 ) .equalsIgnoreCase("<td")) {
+		    ret.append("\\noprint{<td}");
 		    Map<String,String> pp = new HashMap<String, String>();
 		    int idx = HtmlKonverter.getTagAttrs( table, pp, i+3 );
 		    int v = hasNumProp( "colspan",pp );
-		    if( v > 0 )
-			col += v;
-		    else
-			col++;
-		    i = idx-1;
-		} else if( table.substring( i, i+3 ) .equalsIgnoreCase("<th") ){
-		    Map<String,String> pp = new HashMap<String, String>();
-		    int idx = HtmlKonverter.getTagAttrs( table, pp, i+3 );
-		    int v = hasNumProp( "colspan", pp );
-		    if( v > 0 )
-			col += v;
-		    else
-			col++;
-		    i = idx-1;
-		}
-	    }
-	}
-	if( col == 0 )
-	    col = 1;
-	for( int i = 0; i < col; ++i ) {
-	    String cc = countName(i);
-	    ret.append("\\newlength{\\tbl"+tc+"c"+cc+"w}\n");
-	    ret.append("\\setlength{\\tbl"+tc+"c"+cc+"w}{"+(1.0/col)+"\\hsize}\n");
-	}
-	ret.append("\\begin{tabular}{");
-	if( border )
-	    ret.append("|");
-	for( int i = 0; i < col; ++i ) {
-	    String cc = countName(i);
-	    ret.append("p{\\tbl"+tc+"c"+cc+"w}");
-	    if( border )
-		ret.append("|");
-	}
-	ret.append("}\n");
+                    if( v > 0 )
+                        col += v;
+                    else
+                        col++;
+                    i = idx-1;
+                } else if( table.length() > i+2 &&
+			   table.substring( i, i+3 ) .equalsIgnoreCase("<th") ){
+		    ret.append("\\noprint{<th}");
+                    Map<String,String> pp = new HashMap<String, String>();
+                    int idx = HtmlKonverter.getTagAttrs( table, pp, i+3 );
+                    int v = hasNumProp( "colspan", pp );
+                    if( v > 0 )
+                        col += v;
+                    else
+                        col++;
+                    i = idx-1;
+                }
+            }
+        }
+	ret.append("\\noprint{col="+col+"}");
+        if( col == 0 )
+            col = 1;
+        for( int i = 0; i < col; ++i ) {
+            String cc = countName(i);
+            ret.append("\\newlength{\\tbl"+tc+"c"+cc+"w}\n");
+            ret.append("\\setlength{\\tbl"+tc+"c"+cc+"w}{"+(1.0/col)+"\\hsize}\n");
+        }
+        ret.append("\\begin{tabular}{");
+        if( border )
+            ret.append("|");
+        for( int i = 0; i < col; ++i ) {
+            String cc = countName(i);
+            ret.append("p{\\tbl"+tc+"c"+cc+"w}");
+            if( border )
+                ret.append("|");
+        }
+        ret.append("}\n");
     }
 
     /**
@@ -152,10 +166,10 @@ public class TableInfo {
      * Zeichenkette im 26-er-System (a-z) um.
      */
     public String countName(int i) {
-	return "" +
-	    (char)('a' + ((i/26)/26))+
-	    (char)('a' + ((i/26)%26))+
-	    (char)('a' + (i%26));
+        return "" +
+            (char)('a' + ((i/26)/26))+
+            (char)('a' + ((i/26)%26))+
+            (char)('a' + (i%26));
     }
     
     /**
@@ -163,8 +177,8 @@ public class TableInfo {
      * die dazugehörige Breiten-Kontrollsequenz zurück.
      */
     public String colSize(int colNum) {
-	return "\\tbl" + tc + "c" +
-	    countName(colNum) + "w";
+        return "\\tbl" + tc + "c" +
+            countName(colNum) + "w";
     }
 
     /**
@@ -174,56 +188,56 @@ public class TableInfo {
      *  @param p the properties from the <code>&lt;td&gt;</code> tag
      */
     public void startCol( StringBuilder ret, Map<String,String> p ) {
-	endCol(ret);
-	int span = hasNumProp("colspan", p);
-	if( colcnt > 0 ) {
-	    ret.append(" & " );
-	}
-	String align = p.get("align");
-	if( align != null && span < 0 )
-	    span = 1;
-	if( span > 0 ) {
-	    StringBuilder spanSize =
-		new StringBuilder();
-	    spanSize.append("\\dimexpr");
-	    spanSize.append(colSize(colcnt));
-	    for(int i = 1; i < span; i++) {
-		spanSize.append(" + ");
-		spanSize.append(colSize(colcnt+i));
-	    }
-	    spanSize.append(" - 2ex");
-	    spanSize.append("\\relax");
+        endCol(ret);
+        int span = hasNumProp("colspan", p);
+        if( colcnt > 0 ) {
+            ret.append(" & " );
+        }
+        String align = p.get("align");
+        if( align != null && span < 0 )
+            span = 1;
+        if( span > 0 ) {
+            StringBuilder spanSize =
+                new StringBuilder();
+            spanSize.append("\\dimexpr");
+            spanSize.append(colSize(colcnt));
+            for(int i = 1; i < span; i++) {
+                spanSize.append(" + ");
+                spanSize.append(colSize(colcnt+i));
+            }
+            spanSize.append(" - 2ex");
+            spanSize.append("\\relax");
 
-	    ret.append("\\multicolumn{"+span+"}{" );
-	    if( border && colcnt == 0)
-		ret.append("|");
-	    String cc = countName(colcnt);
-	    if( align != null ) {
-		String h = align.substring(0,1);
-		if( "rR".indexOf(h) >= 0 )
-		    ret.append("r");
-		else if( "lL".indexOf(h) >= 0 )
-		    ret.append("p{"+spanSize+"}");
-		else if( "cC".indexOf(h) >= 0 )
-		    ret.append("p{"+spanSize+"}");
-	    } else {
-		ret.append("p{"+spanSize+"}");
-	    }
-	    if( border )
-		ret.append("|");
-	    ret.append("}");
-	}
-	String wid=p.get("texwidth");
+            ret.append("\\multicolumn{"+span+"}{" );
+            if( border && colcnt == 0)
+                ret.append("|");
+            String cc = countName(colcnt);
+            if( align != null ) {
+                String h = align.substring(0,1);
+                if( "rR".indexOf(h) >= 0 )
+                    ret.append("r");
+                else if( "lL".indexOf(h) >= 0 )
+                    ret.append("p{"+spanSize+"}");
+                else if( "cC".indexOf(h) >= 0 )
+                    ret.append("p{"+spanSize+"}");
+            } else {
+                ret.append("p{"+spanSize+"}");
+            }
+            if( border )
+                ret.append("|");
+            ret.append("}");
+        }
+        String wid=p.get("texwidth");
 	ret.append("{");
-	if( wid != null ) {
-	    ret.append("\\parbox{"+wid+"}{\\vskip 1ex ");
-	    parboxed = true;
-	}
-	colcnt++;
-	colopen = true;
+        if( wid != null ) {
+            ret.append("\\parbox{"+wid+"}{\\vskip 1ex ");
+            parboxed = true;
+        }
+        colcnt++;
+        colopen = true;
     }
-		
-		
+                
+                
     /**
      *  Starts a new Heading column, possibly closing the current column
      *  if needed.  A Heading column has a Bold Face font directive around
@@ -233,27 +247,27 @@ public class TableInfo {
      *  @param p the properties from the <code>&lt;th&gt;</code> tag
      */
     public void startHeadCol( StringBuilder ret, Map<String,String> p ) {
-	startCol( ret, p );
-	ret.append("\\bf ");
+        startCol( ret, p );
+        ret.append("\\bfseries ");
     }
-	
-		
+        
+                
     /**
      *  Ends the current column.
      *
      *  @param ret the output buffer to put LaTeX into
      */
     public void endCol( StringBuilder ret ) {
-	if( colopen ) {
-	    colopen = false;
-	    if(parboxed)
-		ret.append("\\vskip 1ex}");
-	    parboxed = false;
+        if( colopen ) {
+            colopen = false;
+            if(parboxed)
+                ret.append("\\vskip 1ex}");
+            parboxed = false;
 	    ret.append("}");
-	}
+        }
     }
     
-		
+                
     /**
      *  Starts a new row, possibly closing the current row if needed
      *
@@ -261,41 +275,41 @@ public class TableInfo {
      *  @param p the properties from the <code>&lt;tr&gt;</code> tag
      */
     public void startRow( StringBuilder ret, Map<String,String> p ) {
-	endRow(ret);
-	if( rowcnt == 0 ) {
-	    if( border )
-		ret.append(" \\hline " );
-	}
-	colcnt = 0;
-	++rowcnt;
-	rowopen = true;
+        endRow(ret);
+        if( rowcnt == 0 ) {
+            if( border )
+                ret.append(" \\hline " );
+        }
+        colcnt = 0;
+        ++rowcnt;
+        rowopen = true;
     }
-	
-		
+        
+                
     /**
      *  Ends the current row.
      *
      *  @param ret the output buffer to put LaTeX into
      */
     public void endRow( StringBuilder ret ) {
-	if( rowopen ) {
-	    endCol(ret);
-	    ret.append( " \\tabularnewline" );
-	    if( border )
-		ret.append( " \\hline" );
-	    rowopen = false;
-	    ret.append("\n");
-	}
+        if( rowopen ) {
+            endCol(ret);
+            ret.append( " \\tabularnewline" );
+            if( border )
+                ret.append( " \\hline" );
+            rowopen = false;
+            ret.append("\n");
+        }
     }
-		
-		
+                
+                
     /**
      *  Ends the table, closing the last row as needed
      *
      *  @param ret the output buffer to put LaTeX into
      */
     public void endTable( StringBuilder ret ) {
-	endRow( ret );
-	ret.append("\\end{tabular}\n");
+        endRow( ret );
+        ret.append("\\end{tabular}\n");
     }
 }

@@ -192,7 +192,7 @@ public class HtmlKonverter {
             switch(c) {
             case ' ':
                 if( verbat > 0 ) {
-                    ret.append("\\phantom{ }");
+                    ret.append("\\mbox{ }");
                 } else {
                     ret.append(' ');
                 }
@@ -219,7 +219,8 @@ public class HtmlKonverter {
                 processBlock( block, ret );
                 break;
             case '{':
-                if( str.length() > i+5 && str.substring(i,i+6).equalsIgnoreCase("{@link") ) {
+                if( str.length() > i+5 &&
+		    str.substring(i,i+6).equalsIgnoreCase("{@link") ) {
                     block = "@link";
                     collectBlock = true;
                     i += 5;
@@ -228,9 +229,10 @@ public class HtmlKonverter {
                 }
                 break;
             case '<':
-                if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("<pre>") ){
+                if( str.length() > i+4 &&
+		    str.substring(i,i+5).equalsIgnoreCase("<pre>") ){
 
-                    ret.append( "{\\tt\n");
+                    ret.append( "{\\ttfamily\n");
                     verbat++;
                     i+=4;
                     if(str.charAt(i+1) == '\r') {
@@ -338,26 +340,39 @@ public class HtmlKonverter {
                     i = idx;
                 } else if( str.length() > i+6 && str.substring(i,i+7).equalsIgnoreCase("</body>") ){
                     i+=6;
-                } else if( str.length() > i+5 && str.substring(i,i+6).equalsIgnoreCase("<code>") ){
-		    verbat++;
+                } else if( str.length() > i+5 &&
+			   str.substring(i,i+6).equalsIgnoreCase("<code>") ){
                     ret.append( "{\\ttfamily " );
                     i+=5;
-                } else if( str.length() > i+6 && str.substring(i,i+7).equalsIgnoreCase("</code>") ){
-		    verbat--;
+                } else if( str.length() > i+6 &&
+			   str.substring(i,i+7).equalsIgnoreCase("</code>") ){
                     ret.append( "}" );
                     i+=6;
-                } else if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</br>") ){
+                } else if( str.length() > i+4 &&
+			   str.substring(i,i+5).equalsIgnoreCase("</br>") ){
                     i+=4;
-                } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("<br>") ){
+                } else if( str.length() > i+3 &&
+			   str.substring(i,i+4).equalsIgnoreCase("<br>") ){
                     ret.append( "\\mbox{}\\newline\n" );
                     i+=3;
-                } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("</p>") ){
+                } else if( str.length() > i+4 &&
+			   str.substring(i,i+5).equalsIgnoreCase("<br/>") ){
+                    ret.append( "\\mbox{}\\newline\n" );
+                    i+=3;
+                } else if( str.length() > i+5 &&
+			   str.substring(i,i+6).equalsIgnoreCase("<br />") ){
+                    ret.append( "\\mbox{}\\newline\n" );
+                    i+=3;
+                } else if( str.length() > i+3 &&
+			   str.substring(i,i+4).equalsIgnoreCase("</p>") ){
 		    ret.append("\\par ");
                     i+=3;
-                } else if( str.length() > i+2 && str.substring(i,i+3).equalsIgnoreCase("<p>") ){
+                } else if( str.length() > i+2 &&
+			   str.substring(i,i+3).equalsIgnoreCase("<p>") ){
                     ret.append( "\\par " );
                     i+=2;
-                } else if( str.length() > i+2 && str.substring(i,i+3).equalsIgnoreCase("<hr") ){
+                } else if( str.length() > i+2 &&
+			   str.substring(i,i+3).equalsIgnoreCase("<hr") ){
                     Map<String,String> p = new HashMap<String, String>();
                     int idx = getTagAttrs( str, p, i+3 );
                     String sz = p.get("size");
@@ -366,21 +381,26 @@ public class HtmlKonverter {
                         size = Integer.parseInt(sz);
                     ret.append( "\\newline\\rule[2mm]{\\hsize}{"+(1*size*.5)+"mm}\\newline\n" );
                     i = idx;
-                } else if( str.length() > i+2 && str.substring(i,i+3).equalsIgnoreCase("<b>") ){
-                    ret.append( "{\\bf " );
+                } else if( str.length() > i+2 &&
+			   str.substring(i,i+3).equalsIgnoreCase("<b>") ){
+                    ret.append( "{\\bfseries " );
                     i+=2;
                 } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("</b>") ){
                     ret.append( "}" );
                     i+=3;
-                } else if( str.length() > i+6 && str.substring(i,i+7).equalsIgnoreCase("<strong>") ){
-                    ret.append( "{\\bf " );
+                } else if( str.length() > i+6 &&
+			   str.substring(i,i+7).equalsIgnoreCase("<strong>") ){
+                    ret.append( "{\\bfseries " );
                     i+=6;
-                } else if( str.length() > i+7 && str.substring(i,i+8).equalsIgnoreCase("</strong>") ){
+                } else if( str.length() > i+7 &&
+			   str.substring(i,i+8).equalsIgnoreCase("</strong>") ){
                     ret.append( "}" );
                     i+=7;
-                } else if( str.length() > i+5 && str.substring(i,i+6).equalsIgnoreCase("</img>") ){
+                } else if( str.length() > i+5 &&
+			   str.substring(i,i+6).equalsIgnoreCase("</img>") ){
                     i+=5;
-                } else if( str.length() > i+4 && str.substring(i,i+4).equalsIgnoreCase("<img") ){
+                } else if( str.length() > i+4 &&
+			   str.substring(i,i+4).equalsIgnoreCase("<img") ){
 		    // TODO: includegraphics
                     Map<String,String> p = new HashMap<String, String>();
                     int idx = getTagAttrs( str, p, i+4 );
@@ -611,12 +631,12 @@ public class HtmlKonverter {
      */
     static int getTagAttrs( String str, Map<String,String> p, int i ) {
         //      static Map<String,String> getTagAttrs( String str, int i ) {
-        byte b[] = str.getBytes();
+        char b[] = str.toCharArray();
         String name = "";
         String value = "";
         int state = 0;
         while( i < b.length ) {
-            switch((char)b[i]) {
+            switch(b[i]) {
             case ' ':
                 if( state == 2 ) {
                     p.put( name.toLowerCase(), value );
@@ -656,9 +676,9 @@ public class HtmlKonverter {
                 if( state == 0 )
                     state = 1;
                 if( state == 1 ) {
-                    name = name + (char)b[i];
+                    name = name + b[i];
                 } else {
-                    value = value + (char)b[i];
+                    value = value + b[i];
                 }
             }
             ++i;
