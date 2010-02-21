@@ -365,6 +365,11 @@ public class SourceFormatter
 	    case '\'': replace = "\\'"; break;
 	    case '\"': replace = "\\\""; break;
 	    default:
+		if(c < ' ') {
+		    // LaTeX kommt nicht mit Zeichen kleiner als 32 klar.
+		    replace = "\\0" + Integer.toOctalString(c);
+		    break;
+		}
 		continue;
 	    }
 	    b.replace(i, i+1, replace);

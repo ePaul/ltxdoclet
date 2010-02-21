@@ -36,8 +36,18 @@
   <!-- ltxpackage -->
 
 
+  <uptodate property="ok.package"
+	    targetfile="${classes.dir}/de/dclj/paul/ltxdoclet/ltxdoclet.sty">
+    <srcfiles dir="${src.dir}/de/dclj/paul/ltxdoclet">
+      <include name="ltxdoclet.dtx" />
+      <include name="ltxdoclet.ins" />
+    </srcfiles>
+  </uptodate>
+
+
   <target name="ltxpackage"
 	  description="generiert das LaTeX-Paket aus dessen Quelltext."
+	  unless="ok.package"
 	  >
     <mkdir dir="${temp.dir}" />
     <copy todir="${temp.dir}">
@@ -77,6 +87,37 @@
     <delete dir="${temp.dir}" />
   </target>
 
+  <!-- pkgdoku -->
+
+  <target name="pkgdoku"
+	  description="Dokumentation für das LaTeX-Paket."
+	  depends="ltxpackage"
+	  >
+    <mkdir dir="${temp.dir}" />
+    <copy todir="${temp.dir}">
+      <fileset dir="${src.dir}/de/dclj/paul/ltxdoclet">
+	<include name="ltxdoclet.dtx"/>
+      </fileset>
+      <fileset dir="${classes.dir}/de/dclj/paul/ltxdoclet">
+	<include name="ltxdoclet.sty"/>
+      </fileset>
+    </copy>
+    <exec executable="pdflatex"
+	  dir="${temp.dir}"
+	  failonerror="true"
+	  taskname="pkgdoku"
+	  >
+      <arg value="-halt-on-error"/>
+      <arg value="ltxdoclet.dtx" />
+    </exec>
+    <copy todir="${doku.dir.tex}">
+      <fileset dir="${temp.dir}">
+	<include name="ltxdoclet.pdf"/>
+      </fileset>
+    </copy>
+    <delete dir="${temp.dir}" />
+  </target>
+
   <!-- classes -->
 
   <target name="classes"
@@ -107,9 +148,9 @@
 	     docencoding="utf-8"
 	     charset="utf-8"
 	     taskname="javadoc-html"
-	     overview="src/de/dclj/paul/ltxdoclet/overview.html"
 	     failonerror="true"
 	     >
+<!--	     overview="src/de/dclj/paul/ltxdoclet/overview.html" -->
       <classpath refid="ltxdoclet-path" />
       <packageset dir="${src.dir}"
 		  includes="de/dclj/paul/ltxdoclet" />

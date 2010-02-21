@@ -107,6 +107,9 @@
 %!\RequirePackage[dvipsnames]{color}
 
 %
+\raggedbottom% Wir wollen nicht den Inhalt der Seiten strecken,
+% damit es passt.
+%
 % \subsection{Diverse Makros}
 %
 % \begin{macro}{\noprint}
@@ -115,6 +118,61 @@
 %   ohne dass sie in der Ausgabe auftauchen.
 \newcommand*\noprint[1]{}%
 % \end{macro}
+%
+
+%
+% \subsection{Makros aus TeXDoclet}
+%
+%
+\def\bl{\mbox{}\newline\mbox{}\newline{}}
+\newcommand{\hide}[2]{%
+  \ifthenelse{\equal{#1}{inherited}}%
+  {}%
+  {}%
+}
+\newcommand{\isep}[0]{%
+\setlength{\itemsep}{-.4ex}
+}
+\newcommand{\sld}[0]{%
+\setlength{\topsep}{0em}
+\setlength{\partopsep}{0em}
+\setlength{\parskip}{0em}
+\setlength{\parsep}{-1em}
+}
+\newcommand{\headref}[3]{%
+\ifthenelse{#1 = 1}{%
+\addcontentsline{toc}{section}{\hspace{\qquad}\protect\numberline{}{#3}}%
+}{}%
+\ifthenelse{#1 = 2}{%
+\addcontentsline{toc}{subsection}{\hspace{\qquad}\protect\numerline{}{#3}}%
+}{}%
+\ifthenelse{#1 = 3}{%
+\addcontentsline{toc}{subsubsection}{\hspace{\qquad}\protect\numerline{}{#3}}%
+}{}%
+\label{#3}%
+\makebox[\textwidth][l]{#2 #3}%
+}%
+\newcommand{\membername}[1]{{\it #1}\linebreak}
+\newcommand{\divideents}[1]{\vskip -1em\indent\rule{2in}{.5mm}}
+\newcommand{\refdefined}[1]{
+\expandafter\ifx\csname r@#1\endcsname\relax
+\relax\else
+{$($ in \ref{#1}, page \pageref{#1}$)$}
+\fi}
+\newcommand{\startsection}[4]{
+\gdef\classname{#2}
+\subsection{\label{#3}{\bf {\sc #1} #2}}{
+\rule[1em]{\hsize}{4pt}\vskip -1em
+\vskip .1in 
+#4
+}%
+}
+\newcommand{\startsubsubsection}[2]{
+\subsubsection{\sc #1}{%
+\rule[1em]{\hsize}{2pt}%
+#2}
+}
+\chardef\bslash=`\\
 %
 % \subsection{Text ausrichten}
 %
@@ -373,19 +431,19 @@
 %
 % \subsection{Hyperlinks}
 %
-% '\hypertarget' setzt das \ltdHypertarget{test-target}{Target} leider auf die Höhe der
-% Grundlinie, so dass es gerade nicht zu sehen ist, wenn
+% '\hypertarget' setzt das \ltdHypertarget{test-target}{Target} leider auf
+% die Höhe der Grundlinie, so dass es gerade nicht zu sehen ist, wenn
 % man es von einem '\hyperlink' anspringt.
 %
-% Hier ein Workaround, der bei PDFs für Adobe Reader und Okular das richtige macht.
-% (Bei xdvi verschlechtert es die Situation für Links im unteren Teil
-% der Seite.)
+% Hier ein Workaround, der bei PDFs in Adobe Reader und Okular das
+% Richtige macht. (Bei xdvi verschlechtert es die Situation für Links
+% im unteren Teil der Seite, die sind jetzt gerade unterhalb des
+% sichtbaren Bereiches.)
 %
 \newcommand*\ltdHypertarget[2]{%
   \setbox\@tempboxa\hbox{#2}%
   \@tempdima\ht\@tempboxa
-  \@tempdimb\dp\@tempboxa
-  \raisebox{1.5\@tempdima}[\@tempdima][\@tempdimb]%
+  \raisebox{1.5\@tempdima}[\@tempdima][0pt]%
   {%
     \hypertarget{#1}%
     {%

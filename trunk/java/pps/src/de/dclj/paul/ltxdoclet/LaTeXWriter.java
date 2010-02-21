@@ -150,12 +150,12 @@ public class LaTeXWriter
      */
     public String asLaTeXString(String s)
     {
-	
-	for (int i = 0; i < ltxsymb.length; i++)
-	    {
-		s = replace(s, ltxsymb[i][0], ltxsymb[i][1]);
-	    }
-	return s;
+	return new HtmlKonverter().toTeX(s);
+// 	for (int i = 0; i < ltxsymb.length; i++)
+// 	    {
+// 		s = replace(s, ltxsymb[i][0], ltxsymb[i][1]);
+// 	    }
+// 	return s;
     }
 	
     /**
@@ -663,9 +663,9 @@ public class LaTeXWriter
 	//	configuration.root.printNotice("Zur Zeit sind nur Links zu Klassen und Member implementiert.");
     }
 
-    public void writeInlineTag(Tag t) {
+    public void writeInlineTag(Tag t, HtmlKonverter konverter) {
 	if (t.kind().equalsIgnoreCase("Text"))    // Puren Text umwandeln
-	    ltxwrite(t.text());
+	    print(konverter.toTeX(t.text()));
 	else if(t.name().equals("@LaTeX"))  // LaTeX-Quelltext direkt verwenden
 	    print(t.text());
 	else if (t.name().equalsIgnoreCase("@code")) {
@@ -677,8 +677,10 @@ public class LaTeXWriter
 		SeeTag st = (SeeTag)t;
 		writeLinkTag(st);
 	    }        // else
-	else 
+	else {
 	    configuration.root.printNotice("Unbekanntes Inline-Tag: " + t);
+	    print("<<"+t+">>");
+	}
     }
 
 
@@ -690,8 +692,9 @@ public class LaTeXWriter
      */
     public void writeInlineTags(Tag[] tags)
     {
+	HtmlKonverter konverter = new HtmlKonverter();
 	for (Tag tag : tags) {
-		writeInlineTag(tag);
+	    writeInlineTag(tag, konverter);
 	}
 	println();
     }  // writeInlineTags

@@ -232,8 +232,11 @@ public class PrettyPrinter
 	if (args.size() != parameters.length)
 	    return false;
 	for(int i = 0; i < parameters.length; i++) {
-	    String argTtext = typeAsString(args.get(i).asType());
-	    if (! argTtext.equals(parameters[i].type().toString()))
+	    // die Typnamen in der Element-API enthalten hier eventuell
+	    // Leerzeichen (nach Kommas), bei Javadoc nicht (oder umgekehrt).
+	    // 
+	    String argTtext = typeAsString(args.get(i).asType()).replace(", ", ",");
+	    if (! argTtext.equals(parameters[i].type().toString().replace(", ", ",")))
 		return false;
 	}
 	return true;
