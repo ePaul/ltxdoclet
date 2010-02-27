@@ -83,25 +83,25 @@ public class LtxDocletConfiguration
     Set<String> javacOptions =
 	new HashSet<String>(Arrays.asList(new String[]{
 		    "-classpath", "-sourcepath",
-		    "-encoding"
+		    "-encoding", "-source"
 		}));
 
     
 
-    /**
-     * Ansatz hier: ein JavacTask pro Datei.
-     * Vorteil: Wir können den starten, wenn
-     * wir ihn brauchen, anstatt erst eine
-     * Liste aller Dateien zusammenzusammeln.
-     *
-     * Nachteil: wahrscheinlich dauert es so deutlich
-     * länger als gleich einen Task für alle Dateien
-     * zu starten, und nachher nur darauf zuzugreifen.
-     *
-     * Hmm, mal sehen.
-     */
-    Map<File, JavacTask> compilationMap =
-	new HashMap<File, JavacTask>();
+//     /**
+//      * Ansatz hier: ein JavacTask pro Datei.
+//      * Vorteil: Wir können den starten, wenn
+//      * wir ihn brauchen, anstatt erst eine
+//      * Liste aller Dateien zusammenzusammeln.
+//      *
+//      * Nachteil: wahrscheinlich dauert es so deutlich
+//      * länger als gleich einen Task für alle Dateien
+//      * zu starten, und nachher nur darauf zuzugreifen.
+//      *
+//      * Hmm, mal sehen.
+//      */
+//     Map<File, JavacTask> compilationMap =
+// 	new HashMap<File, JavacTask>();
 
     /**
      * Startet den Java-Compiler, um Quelltexte einfügen zu können.
@@ -240,6 +240,37 @@ public class LtxDocletConfiguration
 	root.printNotice("... Optionen gelesen.");
     }
 
+
+    private Map<String, Integer> optionLengths;
+
+    {
+	optionLengths = new HashMap<String,Integer>();
+	optionLengths.put("-d", 2);
+	optionLengths.put("-includesource", 1);
+	optionLengths.put("-docencoding", 2);
+	optionLengths.put("-doctitle", 2);
+	optionLengths.put("-link", 2);
+	optionLengths.put("-linkhtml", 2);
+	optionLengths.put("-linkoffline", 3);
+	optionLengths.put("-linkofflinehtml", 3);
+	optionLengths.put("-linkfootnotehtml", 4);
+	optionLengths.put("-linkendhtml", 4);
+	optionLengths.put("-linkofflinefootnotehtml", 3);
+	optionLengths.put("-linkofflineendhtml", 3);
+	optionLengths.put("-linkpdf", 2);
+	optionLengths.put("-linkofflinepdf", 3);
+	optionLengths.put("-linkfootnotepdf", 4);
+	optionLengths.put("-linkendpdf", 4);
+	for(String op : javacOptions) {
+	    optionLengths.put(op, 2);
+	}
+	
+    }
+
+
+
+
+
     /**
      * Ermittelt, ob dieses Doclet eine Option annimmt, und
      * wenn ja, wie viele Argumente sie nimmt.
@@ -247,26 +278,100 @@ public class LtxDocletConfiguration
      *    diese Option darstellen, inklusive der Option selbst.
      */
     public int optionLength(String option) {
-	if ("-d".equals(option))
-	    return 2;
-	if ("-includesource".equals(option)) {
+	if ("-help".equals(option)) {
+	    System.out.println(optionHelp());
 	    return 1;
 	}
-	if ("-docencoding".equals(option)) {
-	    return 1;
-	}
-	if ("-doctitle".equals(option)) {
-	    return 1;
-	}
-	if("-link".equals(option)) {
-	    return 2;
-	}
-	if("-linkoffline".equals(option)) {
-	    return 3;
-	}
-	// TODO: weitere Optionen
-	return 0;
+	Integer r = optionLengths.get(option);
+	return r == null ? 0 : r;
     }
+
+    public String optionHelp() {
+	String text =
+	    "Optionen des LaTeX-Doclets:"
+	    +"\n---------------------------"
+	    +"\n"
+	    +"\nAusgabe-Optionen:"
+	    +"\n"
+	    +"\n -d 〈dir〉           Verzeichnis, in dem die erzeugten Dateien"
+	    +"\n                    abgelegt werden sollen."
+	    +"\n -docencoding 〈enc〉 Name der Kodierung für die LaTeX-Dateien."
+	    +"\n                    Default ist die Default-Kodierung des"
+	    +"\n                    Systems (zur Zeit "+Charset.defaultCharset()
+	    + ")."
+	    +"\n -doctitle 〈title〉  Titel des Dokumentes."
+	    +"\n"
+	    +"\nLink-Optionen:"
+	    +"\n"
+	    +"\n -linkhtml 〈url〉    Erstelle externe Links zu einer"
+	    +"\n                    Javadoc-HTML-Doku."
+	    +"\n -link 〈url〉        Synonym für -linkhtml"
+	    +"\n -linkfootnotehtml 〈url〉 〈linktitle〉"
+	    +"\n                    Erstellt externe Links zu einer"
+	    +"\n                    Javadoc-HTML-Doku als Fußnoten,"
+	    +"\n                    mit gegebenen Titel für den Verweis."
+	    +"\n -linkendhtml 〈url〉 〈linktitle〉"
+	    +"\n                    Erstellt externe Links am Ende zu einer"
+	    +"\n                    Javadoc-HTML-Doku, mit gegebenen Titel"
+	    +"\n                    für den Verweis."
+	    +"\n -linkofflinehtml 〈url〉 〈package-list-url〉"
+	    +"\n                    wie -linkhtml, aber sucht die Package-Liste"
+	    +"\n                    nicht bei 〈url〉, sondern bei"
+	    +"\n                    〈package-list-url〉."
+	    +"\n -linkoffline 〈url〉 〈package-list-url〉"
+	    +"\n                    Synonym für -linkofflinehtml〉"
+	    +"\n -linkofflinefootnotehtml 〈url〉 〈package-list-url〉"
+	    +"\n                    wie -linkfootnotehtml, aber sucht die"
+	    +"\n                    Package-Liste nicht bei 〈url〉, sondern bei"
+	    +"\n                    〈package-list-url〉."
+	    +"\n -linkofflineendhtml 〈url〉 〈package-list-url〉"
+	    +"\n                    wie -linkendhtml, aber sucht die"
+	    +"\n                    Package-Liste nicht bei 〈url〉, sondern bei"
+	    +"\n                    〈package-list-url〉."
+	    +"\n -linkpdf 〈pdf-url〉 Erstellt Links zu einer anderen PDF-Datei"
+	    +"\n                    (mit diesem Doclet erzeugt). (Eine"
+	    +"\n                    Package-Liste sollte im selben Verzeichnis"
+	    +"\n                    liegen.)"
+	    +"\n -linkofflinepdf 〈pdf-url〉 〈pkglst-url〉"
+	    +"\n                    Erstellt Links zu einer anderen PDF-Datei"
+	    +"\n                    (mit diesem Doclet erzeugt), wobei die"
+	    +"\n                    Package-Liste bei 〈pkglst-url〉 gesucht wird."
+	    +"\n -linkfootnotepdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉"
+	    +"\n                    Erstellt Links zu einer anderen PDF-Datei"
+	    +"\n                    (mit diesem Doclet erzeugt) als Fußnoten,"
+	    +"\n                    mit Seitennummern aus der gegebenen"
+	    +"\n                    Index-Datei und gegebenen Titel für den"
+	    +"\n                    Verweis."
+	    +"\n -linkendpdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉"
+	    +"\n                    Erstellt links zu einer anderen PDF-Datei"
+	    +"\n                    (mit diesem Doclet erzeugt) am Ende,"
+	    +"\n                    mit Seitennummern aus der gegebenen"
+	    +"\n                    Index-Datei und gegebenen Titel für den"
+	    +"\n                    Verweis."
+	    +"\n"
+	    +"\nQuelltext-Optionen:"
+	    +"\n"
+	    +"\n -includesource     Nimmt auch Quelltext in die erzeugte Doku"
+	    +"\n                    mit auf. Es wird Quelltext nur für"
+	    +"\n                    dokumentierte Elemente erzeugt, also sollte"
+	    +"\n                    meist auch -private gewählt werden, um den"
+	    +"\n                    kompletten Quelltext zu erhalten."
+	    +"\n -classpath 〈path〉  Der Klassen-Suchpfad für den eingebauten"
+	    +"\n                    Compiler-Aufruf. (Dies ist auch eine"
+	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
+	    +"\n -sourcepath 〈path〉 Der Quelltext-Suchpfad für den eingebauten"
+	    +"\n                    Compiler-Aufruf. (Dies ist auch eine"
+	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
+	    +"\n -encoding 〈path〉   Die Quelltext-Kodierung für den eingebauten"
+	    +"\n                    Compiler-Aufruf. (Dies ist auch eine"
+	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
+	    +"\n -source 〈version〉  Die Java-Version, zu der dieser Quelltext"
+	    +"\n                    kompatibel ist. (Dies ist auch eine"
+	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
+	    +"\n";
+	return text;
+    }
+
 
     public boolean validOptions(String[][] options, DocErrorReporter rep) {
 	// TODO
@@ -290,16 +395,6 @@ public class LtxDocletConfiguration
     //     public Comparator getMemberComparator() {
     //  return null;
     //     }
-
-    public int specificDocletOptionLength(String option)
-    {
-
-        if (option.equals("-d"))
-            return 2;
-        if (option.equals("-doctitle"))
-            return 2;
-        return 0;
-    }
 
 
     public boolean specificDocletValidOptions(String[][] ops, DocErrorReporter err)

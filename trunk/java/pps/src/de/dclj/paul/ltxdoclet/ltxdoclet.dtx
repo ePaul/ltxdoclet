@@ -119,10 +119,21 @@
 \newcommand*\noprint[1]{}%
 % \end{macro}
 %
-
+% \begin{macro}{\textlangle}
+% \begin{macro}{\textrangle}
+%   Wir stellen hier Defaults für diese Makros zur Verfügung,
+%   damit unsere String-Literale mit '〈〉' nicht kaputtgehen, falls sie nicht
+%   da sind.
+\DeclareTextCommandDefault{\textlangle}{~\rlap{$\langle$}}
+\DeclareTextCommandDefault{\textrangle}{\llap{$\rangle$}~}
+% \end{macro}
+% \end{macro}
 %
 % \subsection{Makros aus TeXDoclet}
-%
+% Diese Makros sind direkt kopiert aus dem von TeXDoclet generierten
+% Code, damit die HTML-Umwandlung funktioniert. Ich sollte noch einmal
+% drübergehen und diese Makros anpassen bzw. zumindest ordentlich
+% dokumentieren.
 %
 \def\bl{\mbox{}\newline\mbox{}\newline{}}
 \newcommand{\hide}[2]{%

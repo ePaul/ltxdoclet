@@ -197,7 +197,7 @@ public class LaTeXWriter
     }
 	
     /**
-     * Eine Kapitelüberschrift mit Link.
+     * Eine Kapitelüberschrift mit Link-Ziel.
      */
     public void chapter(String prefix, Doc doc, String shortName)
     {
@@ -593,6 +593,12 @@ public class LaTeXWriter
 	    b.deleteCharAt(index);
 	}
 	return b.toString();
+    }
+
+
+    public String createExternalLink(String label, Doc target) {
+	// TODO
+	return null;
     }
 
 

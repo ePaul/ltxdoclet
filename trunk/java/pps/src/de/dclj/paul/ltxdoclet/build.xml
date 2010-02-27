@@ -186,6 +186,8 @@
     </javadoc>
   </target>
 
+  <!-- pdfdoku -->
+
   <target name="pdfdoku"
 	  description="API-Doku (in PDF) des LaTeX-doclets"
 	  depends="latexdoku" >
@@ -203,6 +205,32 @@
       <arg value="-halt-on-error" />
       <arg value="doku-main.tex" />
     </exec>
+  </target>
+
+
+  <target name="test-help"
+	  depends="classes,ltxpackage">
+    <javadoc >
+      <packageset dir="${src.dir}"
+		  includes="de/dclj/paul/ltxdoclet" />
+      <doclet name="de.dclj.paul.ltxdoclet.DocletStart"
+	      path="${classes.dir}">
+	<param name="-help" />
+      </doclet>
+    </javadoc>
+  </target>
+
+  <!-- jar -->
+
+  <target name="jar"
+	  description="Jar-Datei für das LaTeX-Doclet"
+	  depends="classes,ltxpackage">
+    <jar destfile="${export.dir}/ltxdoclet.jar"
+	 basedir="classes"
+	 index="true">
+      <include name="de/dclj/paul/ltxdoclet/*"/>
+      <!-- ToDo: nettes Manifest -->
+    </jar>
   </target>
 
 </project>
