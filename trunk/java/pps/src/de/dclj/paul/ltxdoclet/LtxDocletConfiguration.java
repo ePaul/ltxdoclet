@@ -12,6 +12,8 @@ import javax.tools.*;
 import com.sun.source.util.*;
 import com.sun.source.tree.*;
 
+import javax.lang.model.element.Element;
+
 
 import java.nio.charset.Charset;
 import java.io.File;
@@ -86,6 +88,11 @@ public class LtxDocletConfiguration
 		    "-encoding", "-source"
 		}));
 
+
+    /**
+     * Dieses Objekt erstellt Links.
+     */
+    public LinkCreator linker;
     
 
 //     /**
@@ -209,12 +216,17 @@ public class LtxDocletConfiguration
 //     }
 
 
-
+    /**
+     * Merkt sich die Optionen aus {@code rd}.
+     */
     public void setOptions(RootDoc rd)
     {
 	this.docencoding = Charset.defaultCharset();
 	this.destdir = new File(System.getProperty("user.dir"));
 	this.doctitle = "Die Package-Sammlung";
+
+	UniversalLinkCreator lc = new UniversalLinkCreator();
+	this.linker = lc;
 
 	this.root = rd;
 	root.printNotice("Lese Optionen ...");
@@ -233,6 +245,9 @@ public class LtxDocletConfiguration
 	    }
 	    if (op[0].equals("-includesource")) {
 		this.includeSource = true;
+	    }
+	    if(op[0].startsWith("-link")) {
+		lc.addOption(op);
 	    }
 	}
 	this.packages = rd.specifiedPackages();
@@ -379,14 +394,6 @@ public class LtxDocletConfiguration
     }
 
 
-    public void setSpecificDocletOptions(RootDoc root)
-    {
-        if (doctitle == null)
-            {
-                doctitle = "Die Package-Sammlung";
-            }
-        //...
-    }
         
     //     public WriterFactory getWriterFactory() {
     //  return null;
@@ -397,11 +404,51 @@ public class LtxDocletConfiguration
     //     }
 
 
-    public boolean specificDocletValidOptions(String[][] ops, DocErrorReporter err)
-    {
-        //...
-        return true;
+    /**
+     * Erstellt den Label-Namen für das angegebene Programmelement.
+     */
+    public String toRefLabel(Doc doc) {
+	if (doc instanceof PackageDoc) {
+	    return doc + "-package";
+	}
+	if (doc instanceof ClassDoc) {
+	    return doc + "-class";
+	}
+	if (doc instanceof RootDoc) {
+	    return "over-view";
+	}
+	// TODO
+	return removeSpaces(doc.toString());
     }
+
+    private String removeSpaces(String t) {
+	StringBuilder b = new StringBuilder(t);
+	int index=0;
+	while((index = b.indexOf(" ", index))>=0) {
+	    b.deleteCharAt(index);
+	}
+	return b.toString();
+    }
+
+
+    /**
+     * Erstellt den Label-Namen für das angegebene Programmelement.
+     */
+    public String toRefLabel(Element element) {
+	switch(element.getKind()) {
+	case CLASS:
+	case INTERFACE:
+	case ENUM:
+	case ANNOTATION_TYPE:
+	    return element + "-class";
+	case PACKAGE:
+	    return element + "-package";
+	default:
+	    return element.toString();
+	}
+    }
+
+
 
 
     String toInputFileName(PackageDoc d)

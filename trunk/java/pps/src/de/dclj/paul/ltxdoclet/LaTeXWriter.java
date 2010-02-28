@@ -201,7 +201,7 @@ public class LaTeXWriter
      */
     public void chapter(String prefix, Doc doc, String shortName)
     {
-	String ref = toRefLabel(doc);
+	String ref = configuration.toRefLabel(doc);
 	println("\\chapter[" + asLaTeXString(shortName) + "]{" + prefix +
 		"\\ltdHypertarget{" + ref + "}{"
 		+asLaTeXString(doc.toString()) + "}}\\label{"+ref+"}");
@@ -222,7 +222,7 @@ public class LaTeXWriter
 
     public void section(String prefix, Doc doc, String shortName)
     {
-	String ref = toRefLabel(doc);
+	String ref = configuration.toRefLabel(doc);
 	println("\\section[" + asLaTeXString(shortName) + "]{" + prefix +
 		"\\ltdHypertarget{" + ref + "}{"
 		+asLaTeXString(doc.toString()) + "}}\\label{"+ref+"}");
@@ -354,44 +354,8 @@ public class LaTeXWriter
      */
     public String referenceTo(Doc doc)
     {
-	return "\\pageref{" + toRefLabel(doc) + "}";
+	return "\\pageref{" + configuration.toRefLabel(doc) + "}";
     }
-
-    /**
-     * Erstellt den Label-Namen für das angegebene Programmelement.
-     */
-    public String toRefLabel(Doc doc) {
-	if (doc instanceof PackageDoc) {
-	    return doc + "-package";
-	}
-	if (doc instanceof ClassDoc) {
-	    return doc + "-class";
-	}
-	if (doc instanceof RootDoc) {
-	    return "over-view";
-	}
-	// TODO
-	return removeSpaces(doc.toString());
-    }
-
-    /**
-     * Erstellt den Label-Namen für das angegebene Programmelement.
-     */
-    public String toRefLabel(Element element) {
-	switch(element.getKind()) {
-	case CLASS:
-	case INTERFACE:
-	case ENUM:
-	case ANNOTATION_TYPE:
-	    return element + "-class";
-	case PACKAGE:
-	    return element + "-package";
-	default:
-	    return element.toString();
-	}
-    }
-
-
 
 
 	
@@ -404,7 +368,7 @@ public class LaTeXWriter
     }
 
     public String referenceTarget(Doc doc, String label) {
-	String ref = toRefLabel(doc);
+	String ref = configuration.toRefLabel(doc);
 	return "\\ltdHypertarget{" + ref + "}{" + label + "}"+
 	    "\\label{"+ref +"}";
     }
@@ -586,14 +550,6 @@ public class LaTeXWriter
 	return "\\hyperlink{" +target + "}{"+ labelText +"}"; //+ " [\\pageref*{" + targetName +"}]";
     }
 
-    private String removeSpaces(String t) {
-	StringBuilder b = new StringBuilder(t);
-	int index=0;
-	while((index = b.indexOf(" ", index))>=0) {
-	    b.deleteCharAt(index);
-	}
-	return b.toString();
-    }
 
 
     public String createExternalLink(String label, Doc target) {
@@ -609,11 +565,13 @@ public class LaTeXWriter
 	if (label.equals("")) {
 	    label = target.name();
 	}
-	// TODO:  target.isIncluded überprüfen und andernfalls externen
-	//        oder gar keinen Link setzen.  Oder einen Index mit allen
-	//        solchen Klassen am Ende anlegen?
-	String targetName = toRefLabel(target);
-	return createLink(label, targetName);
+	return configuration.linker.createLink(label, target);
+
+// 	// TODO:  target.isIncluded überprüfen und andernfalls externen
+// 	//        oder gar keinen Link setzen.  Oder einen Index mit allen
+// 	//        solchen Klassen am Ende anlegen?
+// 	String targetName = configuration.toRefLabel(target);
+// 	return createLink(label, targetName);
     }
 
     /**

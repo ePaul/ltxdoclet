@@ -44,10 +44,11 @@ public class PackageWriter
 		ClassDoc cd = classes[i];
 		print("\\item[{");
 		if (cd.isInterface()) {
-		    italic(createLink(cd));
+		    print("\\textit{" + createLink(cd)+ "}");
 		}
-		else 
+		else {
 		    print(createLink(cd));
+		}
 		println("}]");
 		writeInlineTags(cd.firstSentenceTags());
 		print("\\hfill");

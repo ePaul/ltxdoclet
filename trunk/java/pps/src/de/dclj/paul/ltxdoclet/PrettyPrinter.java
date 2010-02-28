@@ -142,7 +142,7 @@ public class PrettyPrinter
 	}
     }
 
-
+    
     private Doc findInList(ExecutableElement exe,
 			   ConstructorDoc[] cons) {
 	for(ConstructorDoc doc : cons) {
@@ -209,12 +209,16 @@ public class PrettyPrinter
 	    List<TypeElement> classes = 
 		ElementFilter.typesIn(siblings);
 	    for(TypeElement klasse : classes) {
-		if (klasse.getSimpleName().contentEquals(doc.name())) {
+		if (klasse.getSimpleName()
+		    .contentEquals(((Type)doc).simpleTypeName())) {
 		    return klasse;
 		}
 	    }
+	    LaTeXWriter.configuration.root
+		.printWarning("Keine Klasse zu " + doc +" gefunden. "+
+			      "Kandidaten waren: " + classes);
 	} // if type
-	throw new RuntimeException("unbekannter Doc-Typ: " + doc);
+	throw new RuntimeException("unbekannter Doc-Typ: " + doc + " [" + doc.getClass() + "]");
     }
 
     /**
@@ -348,12 +352,12 @@ public class PrettyPrinter
 	    // nicht in der API verwendet.
 	    makeExternalLink(text, linkTarget, doc, target);
 	}
-	else if (!doc.isIncluded()) {
+	else/* if (!doc.isIncluded()) {
 	    // dieses Element ist nicht in der aktuellen Doku, aber
 	    // wurde irgendwo in der Doku erwähnt.
 	    // => vielleicht eine Liste im Anhang?
 	    makeExternalLink(text, linkTarget, doc, target);
-	} else {
+	    } else*/ {
 	    // dieses Element gehört zu den Elementen, die gerade
 	    // dokumentiert werden. => interner Link.
 	    target.printLinkedId(text, doc);

@@ -388,9 +388,10 @@ public class SourceFormatter
     {
 	// TODO: Links für Klassen/Packages an die richtige Stelle
 	// TODO: Links für nicht enthaltene Elemente nicht setzen.
-	appendInLine("\\hyperlink{" + writer.toRefLabel(el) +"}{", 0);
-	printId(text);
-	appendInLine("}", 0);
+
+	// TODO: LinkCreator nutzen (bzw. writer.createLink(...)) 
+	appendInLine(LaTeXWriter.configuration.linker.createLink(text, el),
+		     text.length());
     }
 
 

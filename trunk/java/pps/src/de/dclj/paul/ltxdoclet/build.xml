@@ -176,7 +176,9 @@
       <classpath refid="ltxdoclet-path" />
       <packageset dir="${src.dir}"
 		  includes="de/dclj/paul/ltxdoclet" />
-      <link href="${api.url}" />
+      <link href="http://java.sun.com/javase/6/docs/api/"
+	    offline="on"
+	    packagelistLoc="/usr/share/doc/openjdk-6-jre/api/" />
       <link href="${api.url.tree}" />
       <link href="${api.url.doclet}" />
       <doclet name="de.dclj.paul.ltxdoclet.DocletStart"

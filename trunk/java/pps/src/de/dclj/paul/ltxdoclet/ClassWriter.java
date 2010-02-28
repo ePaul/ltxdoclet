@@ -91,7 +91,7 @@ public class ClassWriter
 // 	}
 	if (configuration.includeSource) {
 	    try{
-	    configuration.pp.printSource(d, this);
+		configuration.pp.printSource(d, this);
 	    }
 // 	    catch(RuntimeException ex) {
 // 		configuration.root.printError("bei printSource("
