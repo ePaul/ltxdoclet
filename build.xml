@@ -86,11 +86,13 @@
 	   (die werden von docstrip übrig gelassen, falls
 	   noch Leerzeichen davor sind).
 	-->
+      <!--  (geht irgendwie gerade nicht)
       <filterchain>
 	<linecontainsregexp negate="true">
 	  <regexp pattern="^\s+%[^%]" />
 	</linecontainsregexp>
       </filterchain>
+      -->
     </copy>
     <delete dir="${temp.dir}" />
   </target>
