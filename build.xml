@@ -12,22 +12,24 @@
   <property name="ant.regexp.regexpimpl"
             value="org.apache.tools.ant.util.regexp.Jdk14RegexpRegexp" />
 
-  
+
+<!--  
   <property name="api.url"
 	    value="file://localhost/usr/share/doc/openjdk-6-jre/api/" />
   <property name="api.url.tree"
 	    value="file://localhost/usr/share/doc/openjdk-6-jre/jdk/api/javac/tree/" />
   <property name="api.url.doclet"
 	    value="file://localhost/usr/share/doc/openjdk-6-jre/jdk/api/javadoc/doclet/" />
+-->
 
-  <!-- Alternative URLs:
+  <!-- Alternative URLs: -->
        <property name="api.url"
 	         value="http://java.sun.com/javase/6/docs/api/" />
        <property name="api.url.doclet"
 	         value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/doclet/" />
        <property name="api.url.tree"
-	         value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/taglet/" />
-       -->
+	         value="http://java.sun.com/javase/6/docs/jdk/api/javac/tree/" />
+<!--       -->
 
   
 
