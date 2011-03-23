@@ -43,7 +43,7 @@ public class LtxDocletConfiguration
     /**
      * Das Verzeichnis, in dem alle erzeugten Daten abgelegt werden sollen.
      *
-     * Wird durch "-d" festgelegt.
+     * Wird durch »-d« festgelegt.
      */
     public File destdir;
     /**
@@ -58,13 +58,13 @@ public class LtxDocletConfiguration
 
     /**
      * Der Titel des Dokumentes.
-     * Wird durch "-doctitle" festgelegt.
+     * Wird durch »-doctitle« festgelegt.
      */
     public String doctitle;
 
     /**
      * Das zu verwendende Encoding für die Ausgabe-Dateien.
-     * Wird durch "-docencoding" festgelegt, wie auch beim Standarddoclet.
+     * Wird durch »-docencoding« festgelegt, wie auch beim Standarddoclet.
      */
     public Charset docencoding;
 

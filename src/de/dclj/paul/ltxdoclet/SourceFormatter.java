@@ -97,7 +97,7 @@ public class SourceFormatter
 
     /**
      * Beginnt eine neue Einrückungsebene, welche die
-     * aktuelle "Cursorposition" (d.h. die bisherige Länge
+     * aktuelle »Cursorposition« (d.h. die bisherige Länge
      * aktuellen Zeile) als neue Einrücktiefe hat.
      *
      * Alle bis zum nächsten {@link #popIndent}

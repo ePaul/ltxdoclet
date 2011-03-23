@@ -377,7 +377,7 @@ public class LaTeXWriter
      * Schreibt die Beschreibung dieses zu dokumentierenden Elementes.
      *
      * Zuerst werden die {@linkplain Doc#inlineTags Inline-Tags} des Elementes ausgegeben,
-     * danach die "normalen" Tags.
+     * danach die »normalen« Tags.
      */
     public void writeDescription(Doc d) {
 	writeInlineTags(d.inlineTags());
