@@ -32,11 +32,11 @@ public class SourceFormatter
      *
      */
     public SourceFormatter(LaTeXWriter wri) {
-	this.writer = wri;
-	this.currentLine = new StringBuilder(80);
-	this.indentStack = new ArrayDeque<Integer>();
-	this.indentStack.push(0);
-	this.currentLineLength = 0;
+        this.writer = wri;
+        this.currentLine = new StringBuilder(80);
+        this.indentStack = new ArrayDeque<Integer>();
+        this.indentStack.push(0);
+        this.currentLineLength = 0;
     }
 
     /**
@@ -44,10 +44,10 @@ public class SourceFormatter
      * ausgegeben wird.
      */
     public void flush() {
-	if (hasIndent) {
-	    // es wurde bereits eine Zeile angefangen
-	    writer.print(currentLine);
-	}
+        if (hasIndent) {
+            // es wurde bereits eine Zeile angefangen
+            writer.print(currentLine);
+        }
     }
 
 
@@ -64,7 +64,7 @@ public class SourceFormatter
      * Länge ist.
      */
     private void appendInLine(String text) {
-	appendInLine(text, text.codePointCount(0, text.length()));
+        appendInLine(text, text.codePointCount(0, text.length()));
     }
 
     /**
@@ -75,9 +75,9 @@ public class SourceFormatter
      *       in Zeichen.
      */
     private void appendInLine(String text, int len) {
-	indent();
-	currentLine.append(text);
-	currentLineLength += len;
+        indent();
+        currentLine.append(text);
+        currentLineLength += len;
     }
 
 
@@ -87,11 +87,11 @@ public class SourceFormatter
      * ausgegeben und danach der Zeilenpuffer geleert.
      */
     private void finishLine() {
-	indent();
-	writer.println(currentLine);
-	currentLine.setLength(0);
-	hasIndent = false;
-	// TODO
+        indent();
+        writer.println(currentLine);
+        currentLine.setLength(0);
+        hasIndent = false;
+        // TODO
     }
 
 
@@ -104,8 +104,8 @@ public class SourceFormatter
      * begonnenen Zeilen erhalten eine Einrückung dieser Länge.
      */
     public void pushIndent() {
-	currentLine.append("\\ltdSetIndent{"+currentLineLength+"}");
-	this.indentStack.push(currentLineLength);
+        currentLine.append("\\ltdSetIndent{"+currentLineLength+"}");
+        this.indentStack.push(currentLineLength);
     }
 
     /**
@@ -116,9 +116,9 @@ public class SourceFormatter
      * mehr ist als die aktuelle Einrückung.
      */
     public void addIndent() {
-	int newIndent = this.indentStack.peek() + 4;
-	currentLine.append("\\ltdSetIndent{" +newIndent+"}");
-	this.indentStack.push(newIndent);
+        int newIndent = this.indentStack.peek() + 4;
+        currentLine.append("\\ltdSetIndent{" +newIndent+"}");
+        this.indentStack.push(newIndent);
     }
 
     /**
@@ -129,8 +129,8 @@ public class SourceFormatter
      * {@link #pushIndent} aktiv war.
      */
     public void popIndent() {
-	this.indentStack.pop();
-	currentLine.append("\\ltdSetIndent{"+this.indentStack.peek()+"}");
+        this.indentStack.pop();
+        currentLine.append("\\ltdSetIndent{"+this.indentStack.peek()+"}");
     }
 
 
@@ -139,15 +139,15 @@ public class SourceFormatter
      * Zeile eingerückt ist.
      */
     private void indent() {
-	if (hasIndent)
-	    return;
-	currentLine.append("\\ltdIndent");
-	int count = indentStack.peek();
-	for (int i = 0; i < count; i++)
-	    currentLine.append(' ');
-	currentLine.append(".");
-	currentLineLength = count;
-	hasIndent = true;
+        if (hasIndent)
+            return;
+        currentLine.append("\\ltdIndent");
+        int count = indentStack.peek();
+        for (int i = 0; i < count; i++)
+            currentLine.append(' ');
+        currentLine.append(".");
+        currentLineLength = count;
+        hasIndent = true;
     }
 
     /**
@@ -155,35 +155,35 @@ public class SourceFormatter
      * gleich seiner Länge ist).
      */
     public void print(String text) {
-	// bei leerem String müssen wir keine Einrückung erzeugen.
-	if (text.length() == 0)
-	    return;
-	int index = text.indexOf("\n");
-	if(index < 0) {
-	    // ohne Zeilenumbruch
-	    appendInLine(text);
-	    return;
-	}
-	// mindestens ein Zeilenumbruch enthalten
-	appendInLine(text.substring(0, index));
-	finishLine();
-	// rekursiver Aufruf mit dem Rest-String
-	print(text.substring(index+1));
+        // bei leerem String müssen wir keine Einrückung erzeugen.
+        if (text.length() == 0)
+            return;
+        int index = text.indexOf("\n");
+        if(index < 0) {
+            // ohne Zeilenumbruch
+            appendInLine(text);
+            return;
+        }
+        // mindestens ein Zeilenumbruch enthalten
+        appendInLine(text.substring(0, index));
+        finishLine();
+        // rekursiver Aufruf mit dem Rest-String
+        print(text.substring(index+1));
     }
 
     /**
      * gibt puren Text aus und beendet danach die Zeile.
      */
     public void println(String text) {
-	print(text);
-	finishLine();
+        print(text);
+        finishLine();
     }
 
     /**
      * gibt die String-Darstellung des Objektes als puren Text aus.
      */
     public void print(Object o) {
-	print(o.toString());
+        print(o.toString());
     }
 
     /**
@@ -191,22 +191,22 @@ public class SourceFormatter
      * und beendet danach die Zeile.
      */
     public void println(Object o) {
-	println(o.toString());
+        println(o.toString());
     }
 
     /**
      * beendet die aktuelle Zeile.
      */
     public void println() {
-	finishLine();
+        finishLine();
     }
 
     /**
      * Druckt ein Schlüsselwort.
      */
     public void printKeyword(String keyword) {
-	appendInLine("\\markKeyword{" + keyword + "}",
-		     keyword.length());
+        appendInLine("\\markKeyword{" + keyword + "}",
+                     keyword.length());
     }
 
 
@@ -214,18 +214,18 @@ public class SourceFormatter
      * druckt einen Identifier (dabei werden {@code _} escapet.)
      */
     public void printId(CharSequence name) {
-	indent();
-	int len = name.length();
-	for(int i = 0; i < len; i++) {
-	    char c = name.charAt(i);
-	    if (c == '_') {
-		this.currentLine.append("\\_");
-	    }
-	    else {
-		this.currentLine.append(c);
-	    }
-	}
-	this.currentLineLength += len;
+        indent();
+        int len = name.length();
+        for(int i = 0; i < len; i++) {
+            char c = name.charAt(i);
+            if (c == '_') {
+                this.currentLine.append("\\_");
+            }
+            else {
+                this.currentLine.append(c);
+            }
+        }
+        this.currentLineLength += len;
     }
 
 
@@ -236,45 +236,45 @@ public class SourceFormatter
      * Druckt ein spezielles Token.
      */
     public void printSpecial(String token) {
-	if(token.equals(""))
-	    return;
-	if(token.charAt(0) == '\n') {
-	    println();
-	    token = token.substring(1);
-	    if(token.equals(""))
-		return;
-	}
-	SpecialToken tok = SpecialToken.getToken(token);
-	if (tok == null) {
-	    appendInLine("\\textbf{" + token + "}", token.length());
-	}
-	else {
-	    appendInLine(tok.getReplacement(), tok.getLength());
-	}
+        if(token.equals(""))
+            return;
+        if(token.charAt(0) == '\n') {
+            println();
+            token = token.substring(1);
+            if(token.equals(""))
+                return;
+        }
+        SpecialToken tok = SpecialToken.getToken(token);
+        if (tok == null) {
+            appendInLine("\\textbf{" + token + "}", token.length());
+        }
+        else {
+            appendInLine(tok.getReplacement(), tok.getLength());
+        }
     }
 
     public void printSpecial(Kind token) {
-	SpecialToken tok = SpecialToken.getToken(token);
-	if (tok == null) {
-	    print(token);
-	}
-	else {
-	    appendInLine(tok.getReplacement(), tok.getLength());
-	}
+        SpecialToken tok = SpecialToken.getToken(token);
+        if (tok == null) {
+            print(token);
+        }
+        else {
+            appendInLine(tok.getReplacement(), tok.getLength());
+        }
     }
 
-//     /**
-//      * Druckt ein spezielles Token und beendet dann die Zeile.
-//      */
-//     public void printlnSpecial(String token) {
-// 	printSpecial(token);
-// 	println();
-//     }
+    //     /**
+    //      * Druckt ein spezielles Token und beendet dann die Zeile.
+    //      */
+    //     public void printlnSpecial(String token) {
+    //  printSpecial(token);
+    //  println();
+    //     }
 
     private void printAsNumber(String text) {
-	appendInLine("{\\markNumber ", 0);
-	appendInLine(text);
-	appendInLine("}", 0);
+        appendInLine("{\\markNumber ", 0);
+        appendInLine(text);
+        appendInLine("}", 0);
     }
 
 
@@ -282,45 +282,45 @@ public class SourceFormatter
      * Druckt ein Literal für einen Wert.
      */
     public void printLiteral(Object value, Kind type) {
-	switch(type) {
-	case BOOLEAN_LITERAL:
-	    String val = value.toString();
-	    appendInLine("{\\markLiteralKeyword " + val + "}", val.length());
-	    return;
-	case INT_LITERAL:
-	case DOUBLE_LITERAL:
-	    printAsNumber(value.toString());
-	    return;
-	case LONG_LITERAL:
-	    printAsNumber(value.toString() + "L");
-	    return;
-	case FLOAT_LITERAL:
-	    printAsNumber(value.toString() + "f");
-	    return;
-	case CHAR_LITERAL: {
+        switch(type) {
+        case BOOLEAN_LITERAL:
+            String val = value.toString();
+            appendInLine("{\\markLiteralKeyword " + val + "}", val.length());
+            return;
+        case INT_LITERAL:
+        case DOUBLE_LITERAL:
+            printAsNumber(value.toString());
+            return;
+        case LONG_LITERAL:
+            printAsNumber(value.toString() + "L");
+            return;
+        case FLOAT_LITERAL:
+            printAsNumber(value.toString() + "f");
+            return;
+        case CHAR_LITERAL: {
 
-	    String javaString = 
-		escapeJavaString(value.toString());
-	    int len = javaString.length() + 2;
-	    String lString = 
-		escapeLaTeXString("'" + javaString + "'");
-	    appendInLine("{\\markNumber " + lString + "}", len);
-	    return;
-	}
-	case STRING_LITERAL: {
-	    String javaString = 
-		escapeJavaString(value.toString());
-	    int len = javaString.length() + 2;
-	    String lString = 
-		escapeLaTeXString('"' + javaString + '"');
-	    appendInLine("{\\markString "+lString+"}", len);
-	    return;
-	}
-	case NULL_LITERAL:
-	    appendInLine("{\\markLiteralKeyword null}", 4);
-	    return;
-	}
-	throw new IllegalArgumentException("Kein Literal: " + type + " (" + value + ")");
+            String javaString = 
+                escapeJavaString(value.toString());
+            int len = javaString.length() + 2;
+            String lString = 
+                escapeLaTeXString("'" + javaString + "'");
+            appendInLine("{\\markNumber " + lString + "}", len);
+            return;
+        }
+        case STRING_LITERAL: {
+            String javaString = 
+                escapeJavaString(value.toString());
+            int len = javaString.length() + 2;
+            String lString = 
+                escapeLaTeXString('"' + javaString + '"');
+            appendInLine("{\\markString "+lString+"}", len);
+            return;
+        }
+        case NULL_LITERAL:
+            appendInLine("{\\markLiteralKeyword null}", 4);
+            return;
+        }
+        throw new IllegalArgumentException("Kein Literal: " + type + " (" + value + ")");
     }
 
     private final static char[] verbDelim = "#'+*&-.,:;<>|!/()=[]1234567890".toCharArray();
@@ -328,54 +328,54 @@ public class SourceFormatter
 
 
     private String escapeLaTeXString(String org) {
-	char delim = 0;
-	for (char c : verbDelim) {
-	    if (org.indexOf(c)< 0) {
-		delim = c;
-		break;
-	    } 
-	}
-	if (delim == 0) {
-	    // kein gemeinsamter Delimiter für den
-	    // ganzen String gefunden => wir halbieren
-	    // den String und versuchen es für die
-	    // Hälften noch einmal. Irgendwann ist der
-	    // String kürzer als unsere Liste der Delimiter,
-	    // dann muss es klappen.
-	    int div = org.length()/2;
-	    return
-		escapeLaTeXString(org.substring(0, div)) +
-		escapeLaTeXString(org.substring(div));
-	}
-	return "\\verb" + delim + org + delim;
+        char delim = 0;
+        for (char c : verbDelim) {
+            if (org.indexOf(c)< 0) {
+                delim = c;
+                break;
+            } 
+        }
+        if (delim == 0) {
+            // kein gemeinsamter Delimiter für den
+            // ganzen String gefunden => wir halbieren
+            // den String und versuchen es für die
+            // Hälften noch einmal. Irgendwann ist der
+            // String kürzer als unsere Liste der Delimiter,
+            // dann muss es klappen.
+            int div = org.length()/2;
+            return
+                escapeLaTeXString(org.substring(0, div)) +
+                escapeLaTeXString(org.substring(div));
+        }
+        return "\\verb" + delim + org + delim;
     }
 
     private String escapeJavaString(String org) {
-	StringBuilder b = new StringBuilder(org);
-	for (int i = 0; i < b.length(); i++) {
-	    char c = b.charAt(i);
-	    String replace;
-	    switch(c) {
-	    case '\n': replace = "\\n"; break;
-	    case '\r': replace = "\\r"; break;
-	    case '\t': replace = "\\t"; break;
-	    case '\f': replace = "\\f"; break;
-	    case '\b': replace = "\\b"; break;
-	    case '\\': replace = "\\\\"; break;
-	    case '\'': replace = "\\'"; break;
-	    case '\"': replace = "\\\""; break;
-	    default:
-		if(c < ' ') {
-		    // LaTeX kommt nicht mit Zeichen kleiner als 32 klar.
-		    replace = "\\0" + Integer.toOctalString(c);
-		    break;
-		}
-		continue;
-	    }
-	    b.replace(i, i+1, replace);
-	    i++;
-	}
-	return b.toString();
+        StringBuilder b = new StringBuilder(org);
+        for (int i = 0; i < b.length(); i++) {
+            char c = b.charAt(i);
+            String replace;
+            switch(c) {
+            case '\n': replace = "\\n"; break;
+            case '\r': replace = "\\r"; break;
+            case '\t': replace = "\\t"; break;
+            case '\f': replace = "\\f"; break;
+            case '\b': replace = "\\b"; break;
+            case '\\': replace = "\\\\"; break;
+            case '\'': replace = "\\'"; break;
+            case '\"': replace = "\\\""; break;
+            default:
+                if(c < ' ') {
+                    // LaTeX kommt nicht mit Zeichen kleiner als 32 klar.
+                    replace = "\\0" + Integer.toOctalString(c);
+                    break;
+                }
+                continue;
+            }
+            b.replace(i, i+1, replace);
+            i++;
+        }
+        return b.toString();
     }
 
 
@@ -386,12 +386,12 @@ public class SourceFormatter
      */
     public void printLinkedId(String text, Doc el)
     {
-	// TODO: Links für Klassen/Packages an die richtige Stelle
-	// TODO: Links für nicht enthaltene Elemente nicht setzen.
+        // TODO: Links für Klassen/Packages an die richtige Stelle
+        // TODO: Links für nicht enthaltene Elemente nicht setzen.
 
-	// TODO: LinkCreator nutzen (bzw. writer.createLink(...)) 
-	appendInLine(LaTeXWriter.configuration.linker.createLink(text, el),
-		     text.length());
+        // TODO: LinkCreator nutzen (bzw. writer.createLink(...)) 
+        appendInLine(LaTeXWriter.configuration.linker.createLink(text, el),
+                     text.length());
     }
 
 

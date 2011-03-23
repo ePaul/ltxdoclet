@@ -56,7 +56,7 @@ public class HtmlKonverter {
      */
     TableInfo tblinfo;
 
-    
+
     /**
      * Wie viele verschachtelte &lt;pre>/&lt;code>-Umgebungen sind gerade offen?
      */
@@ -69,12 +69,12 @@ public class HtmlKonverter {
      * Farbnamen im LaTeX-Dokument.
      */
     static Map<String, String> colors;
-    
+
     /**
      * Die Nummer der nächsten zu definierenden Farbe.
      */
     static int colorIdx = 0;
-        
+
     /*
      *  Testing entry point for testing tables
      public static void main( String args[] ) {
@@ -100,7 +100,7 @@ public class HtmlKonverter {
         tblstk = new ArrayDeque<TableInfo>();
     }
 
-        
+
     /**
      * Initialisiert die Farb-Tabelle.
      * Dies wird automatisch vor der ersten Verwendung der Klasse aufgerufen,
@@ -109,23 +109,23 @@ public class HtmlKonverter {
      * sollen.
      */
     static void init() {
-	colors = new HashMap<String,String>(13);
-	/*
-	 * Die Standard-Farben von HTML, die netterweise
-	 * auch in LaTeX (color) so heißen. 
-	 */
-	for(String colName : new String[]{"red", "green", "blue",
-					  "white", "yellow", "black",
-					  "cyan", "magenta"}) {
-	    colors.put(colName, colName);
-	}
+        colors = new HashMap<String,String>(13);
+        /*
+         * Die Standard-Farben von HTML, die netterweise
+         * auch in LaTeX (color) so heißen. 
+         */
+        for(String colName : new String[]{"red", "green", "blue",
+                                          "white", "yellow", "black",
+                                          "cyan", "magenta"}) {
+            colors.put(colName, colName);
+        }
     }
 
     static {
         init();
     }
-        
-        
+
+
     static int labno = 0;
     static Hashtable<String,String> refs = new Hashtable<String,String>();
 
@@ -136,14 +136,14 @@ public class HtmlKonverter {
             refs.put( key, lab );
         }
         return lab;
-    }                   
-        
-        
+    }
+
+
     void stackTable( Map<String,String> p, StringBuilder ret, String txt, int off ) {
         tblstk.push( tblinfo );
         tblinfo = new TableInfo( p, ret, txt, off );
     }
-        
+
 
     void processBlock( String block, StringBuilder ret ) {
         if( block.substring(0,6).equalsIgnoreCase("@link ") ) {
@@ -205,8 +205,8 @@ public class HtmlKonverter {
             case '$':
             case '#':
                 ret.append( '\\' );
-                ret.append( (char)c );
-                break;
+            ret.append( (char)c );
+            break;
             case '^': /* { */
                 ret.append("$\\wedge$");
                 break;
@@ -220,7 +220,7 @@ public class HtmlKonverter {
                 break;
             case '{':
                 if( str.length() > i+5 &&
-		    str.substring(i,i+6).equalsIgnoreCase("{@link") ) {
+                    str.substring(i,i+6).equalsIgnoreCase("{@link") ) {
                     block = "@link";
                     collectBlock = true;
                     i += 5;
@@ -230,7 +230,7 @@ public class HtmlKonverter {
                 break;
             case '<':
                 if( str.length() > i+4 &&
-		    str.substring(i,i+5).equalsIgnoreCase("<pre>") ){
+                    str.substring(i,i+5).equalsIgnoreCase("<pre>") ){
 
                     ret.append( "{\\ttfamily\n");
                     verbat++;
@@ -341,38 +341,38 @@ public class HtmlKonverter {
                 } else if( str.length() > i+6 && str.substring(i,i+7).equalsIgnoreCase("</body>") ){
                     i+=6;
                 } else if( str.length() > i+5 &&
-			   str.substring(i,i+6).equalsIgnoreCase("<code>") ){
+                           str.substring(i,i+6).equalsIgnoreCase("<code>") ){
                     ret.append( "{\\ttfamily " );
                     i+=5;
                 } else if( str.length() > i+6 &&
-			   str.substring(i,i+7).equalsIgnoreCase("</code>") ){
+                           str.substring(i,i+7).equalsIgnoreCase("</code>") ){
                     ret.append( "}" );
                     i+=6;
                 } else if( str.length() > i+4 &&
-			   str.substring(i,i+5).equalsIgnoreCase("</br>") ){
+                           str.substring(i,i+5).equalsIgnoreCase("</br>") ){
                     i+=4;
                 } else if( str.length() > i+3 &&
-			   str.substring(i,i+4).equalsIgnoreCase("<br>") ){
+                           str.substring(i,i+4).equalsIgnoreCase("<br>") ){
                     ret.append( "\\mbox{}\\newline\n" );
                     i+=3;
                 } else if( str.length() > i+4 &&
-			   str.substring(i,i+5).equalsIgnoreCase("<br/>") ){
+                           str.substring(i,i+5).equalsIgnoreCase("<br/>") ){
                     ret.append( "\\mbox{}\\newline\n" );
                     i+=3;
                 } else if( str.length() > i+5 &&
-			   str.substring(i,i+6).equalsIgnoreCase("<br />") ){
+                           str.substring(i,i+6).equalsIgnoreCase("<br />") ){
                     ret.append( "\\mbox{}\\newline\n" );
                     i+=3;
                 } else if( str.length() > i+3 &&
-			   str.substring(i,i+4).equalsIgnoreCase("</p>") ){
-		    ret.append("\\par ");
+                           str.substring(i,i+4).equalsIgnoreCase("</p>") ){
+                    ret.append("\\par ");
                     i+=3;
                 } else if( str.length() > i+2 &&
-			   str.substring(i,i+3).equalsIgnoreCase("<p>") ){
+                           str.substring(i,i+3).equalsIgnoreCase("<p>") ){
                     ret.append( "\\par " );
                     i+=2;
                 } else if( str.length() > i+2 &&
-			   str.substring(i,i+3).equalsIgnoreCase("<hr") ){
+                           str.substring(i,i+3).equalsIgnoreCase("<hr") ){
                     Map<String,String> p = new HashMap<String, String>();
                     int idx = getTagAttrs( str, p, i+3 );
                     String sz = p.get("size");
@@ -382,26 +382,26 @@ public class HtmlKonverter {
                     ret.append( "\\newline\\rule[2mm]{\\hsize}{"+(1*size*.5)+"mm}\\newline\n" );
                     i = idx;
                 } else if( str.length() > i+2 &&
-			   str.substring(i,i+3).equalsIgnoreCase("<b>") ){
+                           str.substring(i,i+3).equalsIgnoreCase("<b>") ){
                     ret.append( "{\\bfseries " );
                     i+=2;
                 } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("</b>") ){
                     ret.append( "}" );
                     i+=3;
                 } else if( str.length() > i+6 &&
-			   str.substring(i,i+7).equalsIgnoreCase("<strong>") ){
+                           str.substring(i,i+7).equalsIgnoreCase("<strong>") ){
                     ret.append( "{\\bfseries " );
                     i+=6;
                 } else if( str.length() > i+7 &&
-			   str.substring(i,i+8).equalsIgnoreCase("</strong>") ){
+                           str.substring(i,i+8).equalsIgnoreCase("</strong>") ){
                     ret.append( "}" );
                     i+=7;
                 } else if( str.length() > i+5 &&
-			   str.substring(i,i+6).equalsIgnoreCase("</img>") ){
+                           str.substring(i,i+6).equalsIgnoreCase("</img>") ){
                     i+=5;
                 } else if( str.length() > i+4 &&
-			   str.substring(i,i+4).equalsIgnoreCase("<img") ){
-		    // TODO: includegraphics
+                           str.substring(i,i+4).equalsIgnoreCase("<img") ){
+                    // TODO: includegraphics
                     Map<String,String> p = new HashMap<String, String>();
                     int idx = getTagAttrs( str, p, i+4 );
                     refimg = p.get("src");
@@ -411,13 +411,13 @@ public class HtmlKonverter {
                     if( refurl != null ) {
                         ret.append( "} " );
                         if( refurl.charAt(0) == '#' ) {
-			    // TODO: interner Link
+                            // TODO: interner Link
                             ret.append("\\refdefined{"+refName(makeRefKey(refurl.substring(1)))+"}" );
-			}
+                        }
                         else {
-			    // TODO: externer Link
+                            // TODO: externer Link
                             ret.append("(at "+toTeX(refurl)+")" );
-			}
+                        }
                     }
                     i+=3;
                 } else if( str.length() > i+2 && str.substring(i,i+2).equalsIgnoreCase("<a") ){
@@ -441,23 +441,23 @@ public class HtmlKonverter {
                     i = idx;
                     ret.append( "\\begin{itemize}\n" );
                 } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("<li>") ){
-		    ret.append( "\n");
+                    ret.append( "\n");
                     ret.append( "\\item " );
                     i+=3;
                 } else if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</li>") ){
                     i+=4;
                 } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("<dt>") ){
-		    ret.append( "\n");
+                    ret.append( "\n");
                     ret.append( "\\item[{" );
                     i+=3;
                 } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("<dd>") ){
                     ret.append( "}]" );
                     i+=3;
                 } else if ( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</dd>")) {
-		    i += 4;
+                    i += 4;
                 } else if ( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</dt>")) {
-		    i += 4;
-		}else if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</dl>") ){
+                    i += 4;
+                }else if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</dl>") ){
                     ret.append( "\n\\end{itemize}" );
                     i+=4;
                 } else if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</ol>") ){
@@ -524,18 +524,18 @@ public class HtmlKonverter {
                     String col = p.get("color");
                     ret.append( "{" );
                     if( col != null ) {
-			String colName = colors.get(col);
-			if(colName == null) {
-			    colName = "color"+colorIdx;
-			    colorIdx++;
+                        String colName = colors.get(col);
+                        if(colName == null) {
+                            colName = "color"+colorIdx;
+                            colorIdx++;
 
-			    Color cc = new Color( (int)Long.parseLong( col, 16 ) );
-			    ret.append("\\definecolor{"+colName+"}[rgb]{"+(cc.getRed()/255.0)+","+
-				       (cc.getBlue()/255.0)+","+(cc.getGreen()/255.0)+"}");
-			    colors.put(col, colName);
-			}
-			ret.append("\\color{"+colName+"}" );
-		    }
+                            Color cc = new Color( (int)Long.parseLong( col, 16 ) );
+                            ret.append("\\definecolor{"+colName+"}[rgb]{"+(cc.getRed()/255.0)+","+
+                                       (cc.getBlue()/255.0)+","+(cc.getGreen()/255.0)+"}");
+                            colors.put(col, colName);
+                        }
+                        ret.append("\\color{"+colName+"}" );
+                    }
 
                 } else if( str.length() > i+6 && str.substring(i,i+7).equalsIgnoreCase("</font>") ){
                     ret.append( "}" );
@@ -564,7 +564,7 @@ public class HtmlKonverter {
                             ret.append( (char)c );
                     }
                 }
-                break;
+            break;
             case '/':
                 ret.append("$/$");
                 break;
@@ -628,7 +628,7 @@ public class HtmlKonverter {
         }
         return ret.toString();
     }
-        
+
     /**
      *  This method parses HTML tags to extract the tag attributes and place
      *  them into a Map<String,String> object.

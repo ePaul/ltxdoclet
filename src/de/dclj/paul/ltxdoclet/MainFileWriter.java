@@ -17,9 +17,9 @@ public class MainFileWriter
      *
      */
     public MainFileWriter()
-	throws IOException
+        throws IOException
     {
-	super (new File(configuration.destdir, "doku-main.tex"));
+        super (new File(configuration.destdir, "doku-main.tex"));
     }
 
 
@@ -31,62 +31,62 @@ public class MainFileWriter
      */
     public void writeDoku()
     {
-	writePackages();
-	configuration.root.printNotice("ltxdoclet: doku-main.tex wird erstellt ...");
-	println("   % Damit beim Compilieren nicht bei jedem Fehler angehalten wird");
-	println("\\scrollmode");
-	println();
-	writePreamble();
-	println("\\begin{document}");
-	println();
-	chapter("Übersicht", false);
-	ltxwrite( configuration.doctitle + " besteht aus den folgenden Packages. Eine");
-	ltxwrite( " kurze Beschreibung folgt danach.");
-	//	section("Package-Liste", );
-	writePackageList();
-	section("Beschreibung");
-	writeOverview();
-	//      println("\renewcommand{\thechapter}{\ara{chapter}}");
-	println("\\setcounter{chapter}{0}");
-	writePackageImports();
-	println("\\appendix");
-	//...
-	println("\\end{document}");
-	close();
-	configuration.root.printNotice("ltxdoclet: ... doku-main.tex fertig.");
-	configuration.root.printNotice("ltxdoclet: warte auf Beendigung der anderen Dateien ...");
-	waitForAllThreads();
-	configuration.root.printNotice("ltxdoclet: Fertig!");
+        writePackages();
+        configuration.root.printNotice("ltxdoclet: doku-main.tex wird erstellt ...");
+        println("   % Damit beim Compilieren nicht bei jedem Fehler angehalten wird");
+        println("\\scrollmode");
+        println();
+        writePreamble();
+        println("\\begin{document}");
+        println();
+        chapter("Übersicht", false);
+        ltxwrite( configuration.doctitle + " besteht aus den folgenden Packages. Eine");
+        ltxwrite( " kurze Beschreibung folgt danach.");
+        //      section("Package-Liste", );
+        writePackageList();
+        section("Beschreibung");
+        writeOverview();
+        //      println("\renewcommand{\thechapter}{\ara{chapter}}");
+        println("\\setcounter{chapter}{0}");
+        writePackageImports();
+        println("\\appendix");
+        //...
+        println("\\end{document}");
+        close();
+        configuration.root.printNotice("ltxdoclet: ... doku-main.tex fertig.");
+        configuration.root.printNotice("ltxdoclet: warte auf Beendigung der anderen Dateien ...");
+        waitForAllThreads();
+        configuration.root.printNotice("ltxdoclet: Fertig!");
     }
-	
-	
+
+
     /**
      * Wartet, bis alle Threads in LaTeXWriter.configuration.threads
      * beendet wurden und sich aus der Liste streichen.
      */
     public void waitForAllThreads()
     {
-	List threads = configuration.threads;
-	while(true)
-	    {
-		Thread akt;
-		synchronized(threads)
-		    {
-			if (!configuration.threads.isEmpty())
-			    akt =(Thread)threads.get(0);
-			else 
-			    break;
-		    }
-		try 
-		    {
-			akt.join();
-		    }
-		catch(InterruptedException ex){
-		    Thread.currentThread().interrupt();
-		    configuration.wasError = true;
-		    return;
-		}
-	    }     // of while
+        List threads = configuration.threads;
+        while(true)
+            {
+                Thread akt;
+                synchronized(threads)
+                    {
+                        if (!configuration.threads.isEmpty())
+                            akt =(Thread)threads.get(0);
+                        else 
+                            break;
+                    }
+                try 
+                    {
+                        akt.join();
+                    }
+                catch(InterruptedException ex){
+                    Thread.currentThread().interrupt();
+                    configuration.wasError = true;
+                    return;
+                }
+            }     // of while
     }        // of MainFileWriter.waitForAllThreads()
 
     /**
@@ -96,19 +96,19 @@ public class MainFileWriter
      */
     private void copyPackage(String packageName)
     {
-	try {
-	InputStream in =
-	    new BufferedInputStream(MainFileWriter.class.getResourceAsStream(packageName));
-	OutputStream out =
-	    new BufferedOutputStream(new FileOutputStream(new File(configuration.destdir, packageName)));
-	pipeInToOut(in, out);
-	in.close();
-	out.close();
-	}
-	catch(IOException io) {
-	    throw new RuntimeException("konnte das Package nicht kopieren: ",
-				       io);
-	}
+        try {
+            InputStream in =
+                new BufferedInputStream(MainFileWriter.class.getResourceAsStream(packageName));
+            OutputStream out =
+                new BufferedOutputStream(new FileOutputStream(new File(configuration.destdir, packageName)));
+            pipeInToOut(in, out);
+            in.close();
+            out.close();
+        }
+        catch(IOException io) {
+            throw new RuntimeException("konnte das Package nicht kopieren: ",
+                                       io);
+        }
     }
 
     /**
@@ -119,39 +119,38 @@ public class MainFileWriter
      * also gepufferte Streams verwenden, damit es nicht zu langsam wird.
      */
     private void pipeInToOut(InputStream in, OutputStream out)
-	throws IOException
+        throws IOException
     {
-	int r;
-	while(0 <= (r = in.read())) {
-	    out.write(r);
-	}
+        int r;
+        while(0 <= (r = in.read())) {
+            out.write(r);
+        }
     }
 
-	
     private void writePreamble()
     {
-	println("   % Report scheint für eine API jedenfalls besser als Artikel");
-	println("\\documentclass[final, 11pt, a4paper]{scrreprt}");
-	println();
+        println("   % Report scheint für eine API jedenfalls besser als Artikel");
+        println("\\documentclass[final, 11pt, a4paper]{scrreprt}");
+        println();
         println("\\usepackage{fontspec}");
         println("\\usepackage{xunicode}");
         println("\\setmonofont{Liberation Mono}");
         // TODO: polyglossia immer mit passender Option laden
-	if (Locale.getDefault().getLanguage().equals("de"))
-	    {
-		println("  % Neue deutsche Silbentrennung");
-		println("\\usepackage[german]{polyglossia}");
-		println();
-	    }
-	println("\\usepackage[pdfborderstyle={/S/U/W 1}]{hyperref}");
-	println("\\usepackage{enumerate}");
-	println();
-	println("\\usepackage[dvipsnames]{color}");
-	println();
-	println("\\usepackage{ltxdoclet}");
-	println();
-	;
-	copyPackage("ltxdoclet.sty");
+        if (Locale.getDefault().getLanguage().equals("de"))
+            {
+                println("  % Neue deutsche Silbentrennung");
+                println("\\usepackage[german]{polyglossia}");
+                println();
+            }
+        println("\\usepackage[pdfborderstyle={/S/U/W 1}]{hyperref}");
+        println("\\usepackage{enumerate}");
+        println();
+        println("\\usepackage[dvipsnames]{color}");
+        println();
+        println("\\usepackage{ltxdoclet}");
+        println();
+        ;
+        copyPackage("ltxdoclet.sty");
     }
 
     /**
@@ -159,93 +158,89 @@ public class MainFileWriter
      * das inputenc-Paket.
      */
     private String translateEncoding(Charset javaName) {
-	if(javaName.toString().equals("UTF-8")) {
-	    return "utf8";
-	}
-	return javaName.toString().toLowerCase();
+        if(javaName.toString().equals("UTF-8")) {
+            return "utf8";
+        }
+        return javaName.toString().toLowerCase();
     }
 
-	
     /**
      * Erstellt den Überblick über die Package-Sammlung,
      * mit Beschreibung etc.
      */
     private void writeOverview()
     {
-	writeDescription(configuration.root);
+        writeDescription(configuration.root);
     }
-	
+ 
 
     /**
      * Gibt eine Liste der Packages aus.
      */
     private void writePackageList()
     {
-	println("   % Liste der Packages:");
-	println("\\begin{enumerate}[1.]");
-	PackageDoc[] pkgs = configuration.packages;
-	for (int i = 0; i < pkgs.length; i++)
-	    {
-		PackageDoc pd = pkgs[i];
-		println("\\item " + createLink(pd) + "\\dotfill " +
-			referenceTo(pd));
-		newLine();
-		writeInlineTags(pd.firstSentenceTags());
-			
-	    }
-	println("\\end{enumerate}");
+        println("   % Liste der Packages:");
+        println("\\begin{enumerate}[1.]");
+        PackageDoc[] pkgs = configuration.packages;
+        for (int i = 0; i < pkgs.length; i++)
+            {
+                PackageDoc pd = pkgs[i];
+                println("\\item " + createLink(pd) + "\\dotfill " +
+                        referenceTo(pd));
+                newLine();
+                writeInlineTags(pd.firstSentenceTags());
+                        
+            }
+        println("\\end{enumerate}");
     }
 
     private void writePackageImports()
     {
-	PackageDoc[] pkgs = configuration.packages;
-	for (int i = 0; i < pkgs.length; i++)
-	    {
-		String pkgName = configuration.toInputFileName(pkgs[i]);
-		println("\\input{"+pkgName+"/package-doc.tex"+ "}");
-	    }        // of for
+        PackageDoc[] pkgs = configuration.packages;
+        for (int i = 0; i < pkgs.length; i++)
+            {
+                String pkgName = configuration.toInputFileName(pkgs[i]);
+                println("\\input{"+pkgName+"/package-doc.tex"+ "}");
+            }        // of for
     }
-	
+
     private void writePackages()
     {
-	configuration.root.printNotice("Package-Dokus werden erstellt ...");
-	PackageDoc[] pkgs = configuration.packages;
-	for (int i = 0; i < pkgs.length; i++)
-	    {
-		final PackageDoc pd = pkgs[i];
-		Thread thread = new Thread(pd+"-Writer")
-		    {
-			public void run()
-			{
-			    try
-				{
-				    new PackageWriter(pd).writeDoc();
-				}
-			    catch(IOException io)
-				{
-				    configuration.root.printError("Ausgabe für " + pd + " konnte " +
-								  "nicht geschrieben werden!");
-				}
-			    catch(RuntimeException ex) {
-				configuration.wasError = true;
-				throw ex;
-			    }
-			    finally {
-				configuration.threads.remove(this);
-			    }
-			}        // of run()
-		    };
-		configuration.threads.add(thread);
-		thread.start();
-	    }        // of for
+        configuration.root.printNotice("Package-Dokus werden erstellt ...");
+        PackageDoc[] pkgs = configuration.packages;
+        for (int i = 0; i < pkgs.length; i++)
+            {
+                final PackageDoc pd = pkgs[i];
+                Thread thread = new Thread(pd+"-Writer")
+                    {
+                        public void run()
+                        {
+                            try
+                                {
+                                    new PackageWriter(pd).writeDoc();
+                                }
+                            catch(IOException io)
+                                {
+                                    configuration.root.printError("Ausgabe für " + pd + " konnte " +
+                                                                  "nicht geschrieben werden!");
+                                }
+                            catch(RuntimeException ex) {
+                                configuration.wasError = true;
+                                throw ex;
+                            }
+                            finally {
+                                configuration.threads.remove(this);
+                            }
+                        }        // of run()
+                    };
+                configuration.threads.add(thread);
+                thread.start();
+            }        // of for
     }        // of MainFileWriter.writePackages()
-	
+        
     private void writeIndex()
     {
     }
 
-
-  
-	
 
 }

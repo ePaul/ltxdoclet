@@ -82,7 +82,7 @@ public class TableInfo {
         props = p;
         if( p == null )
             return;
-	tblno = tblcnt++;
+        tblno = tblcnt++;
         tc = countName(tblno);
         String val = p.get("border");
         border = false;
@@ -97,39 +97,39 @@ public class TableInfo {
         }
         ret.append("\n% Table #"+tblno+"\n");
         // TODO: getBytes versus substring für nicht-1-Byte-Encodings?
-	//        byte[]b = table.getBytes();
+        //        byte[]b = table.getBytes();
         int col = 0;
         int row = 0;
         for( int i = off; i < table.length(); ++i ) {
             if( table.charAt(i) == '<' ) {
                 if( table.length() > i+6 &&
                     table.substring( i, i+7 ) .equalsIgnoreCase("</table") ) {
-		    ret.append("\\noprint{</table}");
+                    ret.append("\\noprint{</table}");
                     break;
                 } else if( table.length() > i+3 &&
                            table.substring( i, i+4 ) .equalsIgnoreCase("</tr") ){
-		    ret.append("\\noprint{</tr}");
+                    ret.append("\\noprint{</tr}");
                     break;
                 } else if( table.length() > i+2 &&
-			   table.substring( i, i+3 ) .equalsIgnoreCase("<tr") ){
-		    ret.append("\\noprint{<tr}");
+                           table.substring( i, i+3 ) .equalsIgnoreCase("<tr") ){
+                    ret.append("\\noprint{<tr}");
                     if( row++ > 0 ) {
                         break;
-		    }
+                    }
                 } else if(table.length() > i+2 && 
-			  table.substring( i, i+3 ) .equalsIgnoreCase("<td")) {
-		    ret.append("\\noprint{<td}");
-		    Map<String,String> pp = new HashMap<String, String>();
-		    int idx = HtmlKonverter.getTagAttrs( table, pp, i+3 );
-		    int v = hasNumProp( "colspan",pp );
+                          table.substring( i, i+3 ) .equalsIgnoreCase("<td")) {
+                    ret.append("\\noprint{<td}");
+                    Map<String,String> pp = new HashMap<String, String>();
+                    int idx = HtmlKonverter.getTagAttrs( table, pp, i+3 );
+                    int v = hasNumProp( "colspan",pp );
                     if( v > 0 )
                         col += v;
                     else
                         col++;
                     i = idx-1;
                 } else if( table.length() > i+2 &&
-			   table.substring( i, i+3 ) .equalsIgnoreCase("<th") ){
-		    ret.append("\\noprint{<th}");
+                           table.substring( i, i+3 ) .equalsIgnoreCase("<th") ){
+                    ret.append("\\noprint{<th}");
                     Map<String,String> pp = new HashMap<String, String>();
                     int idx = HtmlKonverter.getTagAttrs( table, pp, i+3 );
                     int v = hasNumProp( "colspan", pp );
@@ -141,7 +141,7 @@ public class TableInfo {
                 }
             }
         }
-	ret.append("\\noprint{col="+col+"}");
+        ret.append("\\noprint{col="+col+"}");
         if( col == 0 )
             col = 1;
         for( int i = 0; i < col; ++i ) {
@@ -228,7 +228,7 @@ public class TableInfo {
             ret.append("}");
         }
         String wid=p.get("texwidth");
-	ret.append("{");
+        ret.append("{");
         if( wid != null ) {
             ret.append("\\parbox{"+wid+"}{\\vskip 1ex ");
             parboxed = true;
@@ -263,7 +263,7 @@ public class TableInfo {
             if(parboxed)
                 ret.append("\\vskip 1ex}");
             parboxed = false;
-	    ret.append("}");
+            ret.append("}");
         }
     }
     
