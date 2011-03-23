@@ -444,6 +444,8 @@ public class HtmlKonverter {
 		    ret.append( "\n");
                     ret.append( "\\item " );
                     i+=3;
+                } else if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</li>") ){
+                    i+=4;
                 } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("<dt>") ){
 		    ret.append( "\n");
                     ret.append( "\\item[{" );
@@ -475,6 +477,12 @@ public class HtmlKonverter {
                 } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("</i>") ){
                     ret.append( "}" );
                     i+=3;
+                } else if( str.length() > i+3 && str.substring(i,i+4).equalsIgnoreCase("<em>") ){
+                    ret.append( "{\\em " );
+                    i+=3;
+                } else if( str.length() > i+4 && str.substring(i,i+5).equalsIgnoreCase("</em>") ){
+                    ret.append( "}" );
+                    i+=4;
                 } else if( str.length() > i+7 && str.substring(i,i+8).equalsIgnoreCase("</table>") ){
                     tblinfo.endTable(ret);
                     tblinfo = tblstk.pop();
