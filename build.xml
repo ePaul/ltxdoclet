@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="LaTeXdoclet"
-	 basedir="../../../../../">
+	 basedir=".">
 
   <description>
     LaTeX-Doclet. Ein Javadoc-Doclet, welches LaTeX-Quelltext ausspuckt.
 
-    $Id$
   </description>
   
   <import file="${basedir}/src/ant/common-tasks.xml" />
 
+  <property name="ant.regexp.regexpimpl"
+            value="org.apache.tools.ant.util.regexp.Jdk14RegexpRegexp" />
+
+  
   <property name="api.url"
 	    value="file://localhost/usr/share/doc/openjdk-6-jre/api/" />
   <property name="api.url.tree"
@@ -17,18 +20,21 @@
   <property name="api.url.doclet"
 	    value="file://localhost/usr/share/doc/openjdk-6-jre/jdk/api/javadoc/doclet/" />
 
-<!-- Alternative URLs:
-  <property name="api.url"
-	    value="http://java.sun.com/javase/6/docs/api/" />
-  <property name="api.url.doclet"
-	    value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/doclet/" />
-  <property name="api.url.tree"
-	    value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/taglet/" /> -->
+  <!-- Alternative URLs:
+       <property name="api.url"
+	         value="http://java.sun.com/javase/6/docs/api/" />
+       <property name="api.url.doclet"
+	         value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/doclet/" />
+       <property name="api.url.tree"
+	         value="http://java.sun.com/javase/6/docs/jdk/api/javadoc/taglet/" />
+       -->
+
+  
 
 
   <path id="ltxdoclet-path">
     <pathelement location="${classes.dir}" />
-    <pathelement location="/usr/lib/jvm/java-6-openjdk/lib/tools.jar"/>
+    <pathelement location="${java.home}/../lib/tools.jar"/>
   </path>
 
   <!-- - - - - - - - Die Targets. - - - - - - - - - -->
@@ -127,6 +133,7 @@
 	   encoding="utf8"
 	   source="5"
 	   debug="on"
+           includeantruntime="no"
 	   srcdir="${src.dir}"
 	   >
       <compilerarg value="-Xlint" />
@@ -159,6 +166,8 @@
       <link href="${api.url.doclet}" />
     </javadoc>
   </target>
+
+  <!-- latexdoku -->
 
   <target name="latexdoku"
 	  description="API-Doku (in LaTeX) des LaTeX-doclets"

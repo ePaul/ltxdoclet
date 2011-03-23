@@ -5,8 +5,6 @@
   <description>
     Übliche Targets für alle Projekte, gemeinsame Properties, etc.
     Zum Einbinden in andere Ant-Projektdateien.
-
-    $Id$
   </description>
 
   <property name="classes.dir" location="classes" />
