@@ -110,7 +110,7 @@
 	<include name="ltxdoclet.sty"/>
       </fileset>
     </copy>
-    <exec executable="pdflatex"
+    <exec executable="xelatex"
 	  dir="${temp.dir}"
 	  failonerror="true"
 	  taskname="pkgdoku"
@@ -204,17 +204,17 @@
   <target name="pdfdoku"
 	  description="API-Doku (in PDF) des LaTeX-doclets"
 	  depends="latexdoku" >
-    <exec executable="pdflatex"
+    <exec executable="xelatex"
 	  dir="${doku.dir.tex}"
 	  failonerror="true"
-	  taskname="pdflatex 1">
+	  taskname="pdfdoku 1">
       <arg value="-halt-on-error" />
       <arg value="doku-main.tex" />
     </exec>
-    <exec executable="pdflatex"
+    <exec executable="xelatex"
 	  failonerror="true"
 	  dir="${doku.dir.tex}"
-	  taskname="pdflatex 2">
+	  taskname="pdfdoku 2">
       <arg value="-halt-on-error" />
       <arg value="doku-main.tex" />
     </exec>

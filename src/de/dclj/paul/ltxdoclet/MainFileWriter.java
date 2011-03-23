@@ -133,16 +133,14 @@ public class MainFileWriter
 	println("   % Report scheint für eine API jedenfalls besser als Artikel");
 	println("\\documentclass[final, 11pt, a4paper]{scrreprt}");
 	println();
-	println("\\usepackage[" +
-		translateEncoding(configuration.docencoding) +
-		"]{inputenc}%  Kodierung der Eingabedateien");
-	println("\\usepackage[T1]{fontenc}%  Kodierung der Schriften");
-	println("\\usepackage{textcomp}");
-	println("\\usepackage[scaled]{luximono}% andere Schriftart für sourcecode");
+        println("\\usepackage{fontspec}");
+        println("\\usepackage{xunicode}");
+        println("\\setmonofont{Liberation Mono}");
+        // TODO: polyglossia immer mit passender Option laden
 	if (Locale.getDefault().getLanguage().equals("de"))
 	    {
 		println("  % Neue deutsche Silbentrennung");
-		println("\\usepackage{ngerman}");
+		println("\\usepackage[german]{polyglossia}");
 		println();
 	    }
 	println("\\usepackage[pdfborderstyle={/S/U/W 1}]{hyperref}");

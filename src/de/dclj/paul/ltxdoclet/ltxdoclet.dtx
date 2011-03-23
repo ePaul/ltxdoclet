@@ -32,27 +32,11 @@
 % \iffalse
 %<*driver>
 \documentclass{scrartcl}
-%
-\RequirePackage[utf8]{inputenc}
-%!\PrerenderUnicode{}
-\RequirePackage[ngerman]{babel}
-\addto{\extrasesperanto}{%
-  \renewcommand*{\generalname}{\^Generale}%
-  \GlossaryPrologue{%
-    \section{\^San\^goj}%
-  }%
-  \GlossaryMin=3\baselineskip
-  \IndexPrologue{%
-    \section{Indekso}
-    Kurzivaj nombroj indikas la lokojn, kie la indeks-ero estas priskribita,
-    substrekitaj nombroj indikas la lokon de la difino, la aliaj estas uzoj.
-  }
-  \IndexMin=5\baselineskip
-}
+
+\usepackage[german]{polyglossia}
 
 \usepackage[dvipsnames]{xcolor}
 \usepackage{ltxdoclet}
-%! \usepackage[scaled]{luximono}
 \usepackage[bookmarks=false]{hyperref}
 \usepackage[countalllines, withmarginpar]{gmdoc}
 \usepackage[inline, visible]{gmdoc-enhance}
@@ -389,8 +373,8 @@
 % Zeilenumbrüche, die nicht an einen dieser '\discretionary's
 % fallen (und entsprechend kein '%' in der nächsten Zeile haben.)
 %
-        \discretionary{% Die "`Expansion"' dieses '\discretionary'-Objektes
-% falls es hier einen Zeilenumbruch gibt, ist am Ende der Zeile
+        \discretionary{% Die »Expansion« dieses '\discretionary'-Objektes:
+% Falls es hier einen Zeilenumbruch gibt, ist am Ende der Zeile
 % leer.
         }{\ltdIndent.% Dafür taucht am Anfang der nächsten Zeile
 % die Box auf, die durch '\ltdIndent' gesetzt wird.
