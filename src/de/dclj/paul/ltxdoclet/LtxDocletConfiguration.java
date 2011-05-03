@@ -14,6 +14,7 @@ import com.sun.source.tree.*;
 
 import javax.lang.model.element.Element;
 
+import java.text.MessageFormat;
 
 import java.nio.charset.Charset;
 import java.io.File;
@@ -301,90 +302,22 @@ public class LtxDocletConfiguration
 	return r == null ? 0 : r;
     }
 
+
+    /**
+     * prints some help about the options.
+     * We will load the text from the resource bundle.
+     */
     public String optionHelp() {
-	String text =
-	    "Optionen des LaTeX-Doclets:"
-	    +"\n---------------------------"
-	    +"\n"
-	    +"\nAusgabe-Optionen:"
-	    +"\n"
-	    +"\n -d 〈dir〉           Verzeichnis, in dem die erzeugten Dateien"
-	    +"\n                    abgelegt werden sollen."
-	    +"\n -docencoding 〈enc〉 Name der Kodierung für die LaTeX-Dateien."
-	    +"\n                    Default ist die Default-Kodierung des"
-	    +"\n                    Systems (zur Zeit "+Charset.defaultCharset()
-	    + ")."
-	    +"\n -doctitle 〈title〉  Titel des Dokumentes."
-	    +"\n"
-	    +"\nLink-Optionen:"
-	    +"\n"
-	    +"\n -linkhtml 〈url〉    Erstelle externe Links zu einer"
-	    +"\n                    Javadoc-HTML-Doku."
-	    +"\n -link 〈url〉        Synonym für -linkhtml"
-	    +"\n -linkfootnotehtml 〈url〉 〈linktitle〉"
-	    +"\n                    Erstellt externe Links zu einer"
-	    +"\n                    Javadoc-HTML-Doku als Fußnoten,"
-	    +"\n                    mit gegebenen Titel für den Verweis."
-	    +"\n -linkendhtml 〈url〉 〈linktitle〉"
-	    +"\n                    Erstellt externe Links am Ende zu einer"
-	    +"\n                    Javadoc-HTML-Doku, mit gegebenen Titel"
-	    +"\n                    für den Verweis."
-	    +"\n -linkofflinehtml 〈url〉 〈package-list-url〉"
-	    +"\n                    wie -linkhtml, aber sucht die Package-Liste"
-	    +"\n                    nicht bei 〈url〉, sondern bei"
-	    +"\n                    〈package-list-url〉."
-	    +"\n -linkoffline 〈url〉 〈package-list-url〉"
-	    +"\n                    Synonym für -linkofflinehtml〉"
-	    +"\n -linkofflinefootnotehtml 〈url〉 〈package-list-url〉"
-	    +"\n                    wie -linkfootnotehtml, aber sucht die"
-	    +"\n                    Package-Liste nicht bei 〈url〉, sondern bei"
-	    +"\n                    〈package-list-url〉."
-	    +"\n -linkofflineendhtml 〈url〉 〈package-list-url〉"
-	    +"\n                    wie -linkendhtml, aber sucht die"
-	    +"\n                    Package-Liste nicht bei 〈url〉, sondern bei"
-	    +"\n                    〈package-list-url〉."
-	    +"\n -linkpdf 〈pdf-url〉 Erstellt Links zu einer anderen PDF-Datei"
-	    +"\n                    (mit diesem Doclet erzeugt). (Eine"
-	    +"\n                    Package-Liste sollte im selben Verzeichnis"
-	    +"\n                    liegen.)"
-	    +"\n -linkofflinepdf 〈pdf-url〉 〈pkglst-url〉"
-	    +"\n                    Erstellt Links zu einer anderen PDF-Datei"
-	    +"\n                    (mit diesem Doclet erzeugt), wobei die"
-	    +"\n                    Package-Liste bei 〈pkglst-url〉 gesucht wird."
-	    +"\n -linkfootnotepdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉"
-	    +"\n                    Erstellt Links zu einer anderen PDF-Datei"
-	    +"\n                    (mit diesem Doclet erzeugt) als Fußnoten,"
-	    +"\n                    mit Seitennummern aus der gegebenen"
-	    +"\n                    Index-Datei und gegebenen Titel für den"
-	    +"\n                    Verweis."
-	    +"\n -linkendpdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉"
-	    +"\n                    Erstellt links zu einer anderen PDF-Datei"
-	    +"\n                    (mit diesem Doclet erzeugt) am Ende,"
-	    +"\n                    mit Seitennummern aus der gegebenen"
-	    +"\n                    Index-Datei und gegebenen Titel für den"
-	    +"\n                    Verweis."
-	    +"\n"
-	    +"\nQuelltext-Optionen:"
-	    +"\n"
-	    +"\n -includesource     Nimmt auch Quelltext in die erzeugte Doku"
-	    +"\n                    mit auf. Es wird Quelltext nur für"
-	    +"\n                    dokumentierte Elemente erzeugt, also sollte"
-	    +"\n                    meist auch -private gewählt werden, um den"
-	    +"\n                    kompletten Quelltext zu erhalten."
-	    +"\n -classpath 〈path〉  Der Klassen-Suchpfad für den eingebauten"
-	    +"\n                    Compiler-Aufruf. (Dies ist auch eine"
-	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
-	    +"\n -sourcepath 〈path〉 Der Quelltext-Suchpfad für den eingebauten"
-	    +"\n                    Compiler-Aufruf. (Dies ist auch eine"
-	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
-	    +"\n -encoding 〈path〉   Die Quelltext-Kodierung für den eingebauten"
-	    +"\n                    Compiler-Aufruf. (Dies ist auch eine"
-	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
-	    +"\n -source 〈version〉  Die Java-Version, zu der dieser Quelltext"
-	    +"\n                    kompatibel ist. (Dies ist auch eine"
-	    +"\n                    javadoc-Option, die wir weiterverwenden.)"
-	    +"\n";
-	return text;
+        
+        ResourceBundle bundle =
+            ResourceBundle.getBundle("de.dclj.paul.ltxdoclet.help",
+                                     new HelpTextBundleControl());
+        Charset cs = Charset.defaultCharset();
+        String text = bundle.getString("help");
+        if(!"〈...〉".contentEquals(cs.decode(cs.encode("〈...〉")))) {
+            text = text.replace('〈', '<').replace('〉', '>');
+        }
+        return MessageFormat.format(text, cs);
     }
 
 
@@ -463,6 +396,8 @@ public class LtxDocletConfiguration
         dir.mkdirs();
         return dir;
     }
+
+
 
 
 

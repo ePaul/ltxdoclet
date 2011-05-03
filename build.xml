@@ -144,6 +144,10 @@
       <classpath refid="ltxdoclet-path" />
       <include name="de/dclj/paul/ltxdoclet/*.java" />
     </javac>
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}"
+               includes="de/dclj/paul/ltxdoclet/*.txt" />
+    </copy>
   </target>
 
   <!-- htmldoku -->
@@ -201,6 +205,18 @@
     </javadoc>
   </target>
 
+  <target name="doclethelp"
+          description="Kommandozeilen-Hilfe des LaTeX-Doclets"
+          depends="classes"
+          >
+    <javadoc sourcepath="${src.dir}">
+      <doclet name="de.dclj.paul.ltxdoclet.DocletStart"
+	      path="${classes.dir}">
+      </doclet>
+      <arg value="-help" />
+    </javadoc>
+  </target>
+
   <!-- pdfdoku -->
 
   <target name="pdfdoku"
@@ -240,6 +256,7 @@
   <target name="jar"
 	  description="Jar-Datei für das LaTeX-Doclet"
 	  depends="classes,ltxpackage">
+    <mkdir dir="${export.dir}" />
     <jar destfile="${export.dir}/ltxdoclet.jar"
 	 basedir="classes"
 	 index="true">

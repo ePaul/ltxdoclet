@@ -1,0 +1,83 @@
+Optionen des LaTeX-Doclets:
+===========================
+
+Ausgabe-Optionen:
+-----------------
+
+ -d 〈dir〉           Verzeichnis, in dem die erzeugten Dateien
+                    abgelegt werden sollen.
+ -docencoding 〈enc〉 Name der Kodierung für die LaTeX-Dateien.
+                    Default ist die Default-Kodierung des
+                    Systems (zur Zeit {0}).
+ -doctitle 〈title〉  Titel des Dokumentes.
+
+Link-Optionen:
+--------------
+
+ -linkhtml 〈url〉    Erstelle externe Links zu einer
+                    Javadoc-HTML-Doku.
+ -link 〈url〉        Synonym für -linkhtml
+ -linkfootnotehtml 〈url〉 〈linktitle〉
+                    Erstellt externe Links zu einer
+                    Javadoc-HTML-Doku als Fußnoten,
+                    mit gegebenen Titel für den Verweis.
+ -linkendhtml 〈url〉 〈linktitle〉
+                    Erstellt externe Links am Ende zu einer
+                    Javadoc-HTML-Doku, mit gegebenen Titel
+                    für den Verweis.
+ -linkofflinehtml 〈url〉 〈package-list-url〉
+                    wie -linkhtml, aber sucht die Package-Liste
+                    nicht bei 〈url〉, sondern bei
+                    〈package-list-url〉.
+ -linkoffline 〈url〉 〈package-list-url〉
+                    Synonym für -linkofflinehtml
+ -linkofflinefootnotehtml 〈url〉 〈package-list-url〉
+                    wie -linkfootnotehtml, aber sucht die
+                    Package-Liste nicht bei 〈url〉, sondern bei
+                    〈package-list-url〉.
+ -linkofflineendhtml 〈url〉 〈package-list-url〉
+                    wie -linkendhtml, aber sucht die
+                    Package-Liste nicht bei 〈url〉, sondern bei
+                    〈package-list-url〉.
+ -linkpdf 〈pdf-url〉 Erstellt Links zu einer anderen PDF-Datei
+                    (mit diesem Doclet erzeugt). (Eine
+                    Package-Liste sollte im selben Verzeichnis
+                    liegen.)
+ -linkofflinepdf 〈pdf-url〉 〈pkglst-url〉
+                    Erstellt Links zu einer anderen PDF-Datei
+                    (mit diesem Doclet erzeugt), wobei die
+                    Package-Liste bei 〈pkglst-url〉 gesucht wird.
+ -linkfootnotepdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉
+                    Erstellt Links zu einer anderen PDF-Datei
+                    (mit diesem Doclet erzeugt) als Fußnoten,
+                    mit Seitennummern aus der gegebenen
+                    Index-Datei und gegebenen Titel für den
+                    Verweis.
+ -linkendpdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉
+                    Erstellt links zu einer anderen PDF-Datei
+                    (mit diesem Doclet erzeugt) am Ende,
+                    mit Seitennummern aus der gegebenen
+                    Index-Datei und gegebenen Titel für den
+                    Verweis.
+
+Quelltext-Optionen:
+-------------------
+
+ -includesource     Nimmt auch Quelltext in die erzeugte Doku
+                    mit auf. Es wird Quelltext nur für
+                    dokumentierte Elemente erzeugt, also sollte
+                    meist auch -private gewählt werden, um den
+                    kompletten Quelltext zu erhalten.
+ -classpath 〈path〉  Der Klassen-Suchpfad für den eingebauten
+                    Compiler-Aufruf. (Dies ist auch eine
+                    javadoc-Option, die wir weiterverwenden.)
+ -sourcepath 〈path〉 Der Quelltext-Suchpfad für den eingebauten
+                    Compiler-Aufruf. (Dies ist auch eine
+                    javadoc-Option, die wir weiterverwenden.)
+ -encoding 〈path〉   Die Quelltext-Kodierung für den eingebauten
+                    Compiler-Aufruf. (Dies ist auch eine
+                    javadoc-Option, die wir weiterverwenden.)
+ -source 〈version〉  Die Java-Version, zu der dieser Quelltext
+                    kompatibel ist. (Dies ist auch eine
+                    javadoc-Option, die wir weiterverwenden.)
+

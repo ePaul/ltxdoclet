@@ -1,0 +1,94 @@
+LaTeX doclet options:
+=====================
+
+Output options:
+---------------
+
+ -d 〈dir〉           Directory in which to put the generated .tex files.
+ -docencoding 〈enc〉 Name of the encoding of the LaTeX files. Default is the
+                    default encoding of the system (now {0}).
+ -doctitle 〈title〉  Document title.
+
+Link options:
+-------------
+
+ All the link options are of the form
+   -link[offline][end|footnote][html|pdf] (〈url〉|〈pdf-url〉)
+       [〈package-list-url〉|〈idx-url〉] [〈linktitle〉]
+ where the actual option defines which options are needed/available.
+
+* 'html' (or nothing) means creating links to an HTML documentation.
+   Needs 〈url〉.
+* 'pdf' means creating links to a PDF created with this doclet.
+   Needs 〈pdf-url〉.
+
+* 'offline' means to look for the package list not at the link URL,
+   but somewhere else. Needs 〈package-list-url〉.
+
+* 'end' means to put the links at the end of the file in a link section
+   instead of inline. Needs 〈linktitle〉. In the PDF-case, needs 〈idx-url〉,
+   too.
+* 'footnotes' means to put the links in footnotes at the bottom of each
+   page, instead of inline. Needs  〈linktitle〉. In the PDF-case, needs
+   〈idx-url〉, too.
+* (none of these) means to put the links inline.
+
+(I think some of these are not yet implemented.)
+
+
+ -linkhtml 〈url〉    Create external links to a javadoc HTML documentation.
+ -link 〈url〉        Synonymous to -linkhtml
+ -linkfootnotehtml 〈url〉 〈linktitle〉
+                    Create external links to a javadoc HTML documentation
+                    in the form of footnotes, using the title for the
+                    reference.
+ -linkendhtml 〈url〉 〈linktitle〉
+                    Create external links to a javadoc HTML documentation
+                    at the end of the file, using the title for the
+                    reference.
+ -linkofflinehtml 〈url〉 〈package-list-url〉
+                    Like -linkhtml, but look for the package list at
+                    〈package-list-url〉 instead of 〈url〉.
+ -linkoffline 〈url〉 〈package-list-url〉
+                    Synonymous to -linkofflinehtml
+ -linkofflinefootnotehtml 〈url〉 〈package-list-url〉
+                    wie -linkfootnotehtml, aber sucht die
+                    Package-Liste nicht bei 〈url〉, sondern bei
+                    〈package-list-url〉.
+ -linkofflineendhtml 〈url〉 〈package-list-url〉 〈linktitle〉
+                    wie -linkendhtml,  but look for the package list at
+                    〈package-list-url〉 instead of 〈url〉.
+ -linkpdf 〈pdf-url〉 Creates links to another PDF file (should be created with
+                    this doclet). The package-list will be searched in the
+                    same directory.
+ -linkofflinepdf 〈pdf-url〉 〈pkglst-url〉
+                    Creates links to another PDF file (should be created with
+                    this doclet). The package-list will be searched in
+                    〈pkglst-url〉.
+ -linkfootnotepdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉
+                    Creates links to another PDF file (should be created with
+                    this doclet), in the form of footnotes. 〈idx-url〉 is a
+                    LaTeX .idx file used to get the page numbers, 
+                    〈linktitle〉 will be used for as the reference title.
+ -linkendpdf 〈pdf-url〉 〈idx-url〉 〈linktitle〉
+                    Creates links to another PDF file (should be created with
+                    this doclet), at the end of the file. 〈idx-url〉 is a
+                    LaTeX .idx file used to get the page numbers, 
+                    〈linktitle〉 will be used for as the reference title.
+
+Source options:
+---------------
+
+ -includesource     Add source code to the created documentation. We
+                    only add source code for documented elements, so
+                    make sure to also add -private if you want the complete
+                    source code.
+ -classpath 〈path〉  The classpath for the embedded compiler call. (This is
+                    a javadoc option which we are reusing.)
+ -sourcepath 〈path〉 The classpath for the embedded compiler call. (This is
+                     a javadoc option which we are reusing.)
+ -encoding 〈path〉   The source encoding for the embedded compiler call.
+                    (This is a javadoc option which we are reusing.)
+ -source 〈version〉  The Java version of the source code. (This is
+                    a javadoc option which we are reusing.)
+
