@@ -112,19 +112,19 @@
 	<include name="ltxdoclet.sty"/>
       </fileset>
     </copy>
-    <exec executable="xelatex"
-	  dir="${temp.dir}"
-	  failonerror="true"
-	  taskname="pkgdoku"
-	  >
-      <arg value="-halt-on-error"/>
-      <arg value="ltxdoclet.dtx" />
-    </exec>
-    <copy todir="${doku.dir.tex}">
-      <fileset dir="${temp.dir}">
-	<include name="ltxdoclet.pdf"/>
-      </fileset>
-    </copy>
+    <thrice>
+      <exec executable="xelatex"
+	    dir="${temp.dir}"
+	    failonerror="true"
+	    taskname="pkgdoku"
+	    >
+        <arg value="-halt-on-error"/>
+        <arg value="ltxdoclet.dtx" />
+      </exec>
+    </thrice>
+    <mkdir dir="${export.dir}" />
+    <copy tofile="${export.dir}/ltxdoclet-ltxpkg.pdf"
+          file="${temp.dir}/ltxdoclet.pdf" />
     <delete dir="${temp.dir}" />
   </target>
 
@@ -265,4 +265,10 @@
     </jar>
   </target>
 
+  <target name="export"
+          description="creates everything exportable"
+          depends="jar,pkgdoku,pdfdoku">
+    <copy tofile="${export.dir}/ltxdoclet-javadoc.pdf"
+          file="${doku.dir.tex}/doku-main.pdf"/>
+  </target>
 </project>

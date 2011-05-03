@@ -23,5 +23,16 @@
     <delete dir="${doku.dir.tex}" />
   </target>
 
+  <macrodef name="thrice"
+            description="executes some tasks thrice.">
+    <element name="content" implicit="true"
+             description="the nested tasks to do thrice." />
+    <sequential>
+      <content />
+      <content />
+      <content />
+    </sequential>
+  </macrodef>
+
 
 </project>
